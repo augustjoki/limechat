@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+  <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+  <channel>
+    <title>LimeChat Appcast</title>
+    <link>http://limechat.net/mac/limechat_appcast.xml</link>
+    <description>LimeChat Releases</description>
+    <language>en</language>
+    
+    <item>
+      <title>LimeChat 2.7</title>
+      <description><![CDATA[
+        <html>
+        <body>
+        <style>
+          body {
+            font-size: medium;
+          }
+          h1 {
+            font-size: large;
+          }
+          li {
+            margin: 0.2em 0;
+          }
+        </style>
+        <h1>LimeChat 2.7</h1>
+        <ul>
+          <li>Allow SSL for proxy connections.</li>
+          <li>Fixed minor bugs.</li>
+        </ul>
+        </body>
+        </html>
+      ]]></description>
+      <pubDate>Tue, 20 Apr 2010 11:09:08 +0900</pubDate>
+      <enclosure url="http://cloud.github.com/downloads/psychs/limechat/LimeChat_2.7.tbz"
+                  sparkle:version="2.7" length="912105" type="application/octet-stream"
+                  sparkle:dsaSignature="MC0CFBStwkVO4ZutjbaswxBsRkPhNStWAhUAmLmJoTQyS3C1dkqOdEWLKKFVbw4="/>
+    </item>
+    
+  </channel>
+</rss>

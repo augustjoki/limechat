@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>English</string>
+	<key>CFBundleExecutable</key>
+	<string>${EXECUTABLE_NAME}</string>
+	<key>CFBundleIconFile</key>
+	<string>application.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>net.limechat.LimeChat</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>${PRODUCT_NAME}</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleSignature</key>
+	<string>????</string>
+	<key>CFBundleVersion</key>
+	<string>2.7</string>
+	<key>CFBundleShortVersionString</key>
+	<string>2.7</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.5.0</string>
+	<key>LSMinimumSystemVersionByArchitecture</key>
+	<dict>
+		<key>i386</key>
+		<string>10.5.0</string>
+		<key>ppc</key>
+		<string>10.5.0</string>
+		<key>ppc64</key>
+		<string>10.6.0</string>
+		<key>x86_64</key>
+		<string>10.6.0</string>
+	</dict>
+	<key>NSMainNibFile</key>
+	<string>MainMenu</string>
+	<key>NSPrincipalClass</key>
+	<string>LimeChatApplication</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright 2007-2010 Satoshi Nakagawa</string>
+	<key>CFBundleGetInfoString</key>
+	<string>LimeChat for Mac, Copyright 2007-2010 Satoshi Nakagawa</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>Internet Relay Chat</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>irc</string>
+				<string>limechat</string>
+			</array>
+		</dict>
+	</array>
+	<key>LCApplicationName</key>
+	<string>LimeChat for Mac</string>
+	<key>SUFeedURL</key>
+	<string>http://limechat.net/mac/limechat_appcast.xml</string>
+	<key>SUScheduledCheckInterval</key>
+	<integer>86400</integer>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+	<key>SUPublicDSAKeyFile</key>
+	<string>dsa_pub.pem</string>
+	<key>SACrashReporterDeveloperName</key>
+	<string>Psychs</string>
+	<key>SACrashReporterPostURL</key>
+	<string>http://limechat.net/app/crash_reporter.php</string>
+</dict>
+</plist>
