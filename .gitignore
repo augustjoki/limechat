@@ -1,24 +1,9 @@
-build
-.DS_Store
-*.o
-*.ob
+# xcode noise
+build/*
 *.pbxuser
-*.tmproj
-*.mode1*
-*.build
-*~.nib
-designable.nib
-*.tm_build_errors
-Debug
-*.obj
-*.ncb
-*.aps
-*.suo
-*.user
-*.pdb
-*.idb
-BuildLog.htm
-mt.dep
-debuglog.*
-*.intermediate.manifest
+*.mode1v3
+*.perspectivev3
 
+# osx noise
+.DS_Store
+profile
