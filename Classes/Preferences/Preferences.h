@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import <Cocoa/Cocoa.h>
 #import "GrowlController.h"
@@ -50,6 +50,7 @@ typedef enum {
 + (BOOL)showInlineImages;
 + (BOOL)showJoinLeave;
 + (BOOL)stopGrowlOnActive;
++ (BOOL)autoJoinOnInvited;
 + (TabActionType)tabAction;
 + (BOOL)useHotkey;
 + (BOOL)keywordCurrentNick;
@@ -67,8 +68,13 @@ typedef enum {
 + (void)setThemeLogFontName:(NSString*)value;
 + (double)themeLogFontSize;
 + (void)setThemeLogFontSize:(double)value;
++ (NSString*)themeInputFontName;
++ (void)setThemeInputFontName:(NSString*)value;
++ (double)themeInputFontSize;
++ (void)setThemeInputFontSize:(double)value;
 + (NSString*)themeNickFormat;
 + (BOOL)themeOverrideLogFont;
++ (BOOL)themeOverrideInputFont;
 + (BOOL)themeOverrideNickFormat;
 + (BOOL)themeOverrideTimestampFormat;
 + (NSString*)themeTimestampFormat;
@@ -128,7 +134,7 @@ typedef enum {
 
 + (NSArray*)keywords;
 + (NSArray*)excludeWords;
-+ (NSArray*)ignoreWords;
++ (void)cleanUpWords;
 
 + (void)initPreferences;
 + (void)migrate;

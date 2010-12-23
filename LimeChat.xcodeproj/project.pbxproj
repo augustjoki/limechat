@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		780C67C811822AFF00CB739F /* ImageURLParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 780C67C711822AFF00CB739F /* ImageURLParser.m */; };
+		780C685E118230EE00CB739F /* WebViewAutoScroll.m in Sources */ = {isa = PBXBuildFile; fileRef = 780C685D118230EE00CB739F /* WebViewAutoScroll.m */; };
+		780FF69F11813BC3003C7648 /* CustomJSFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 780FF69E11813BC3003C7648 /* CustomJSFile.m */; };
 		78287EB70D742DBD008D5656 /* Themes in CopyFiles */ = {isa = PBXBuildFile; fileRef = 78287EA90D742DAA008D5656 /* Themes */; };
 		782FCF891173824C007BE697 /* LimeChatApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = 782FCF881173824C007BE697 /* LimeChatApplication.m */; };
 		78347ED31158D4B00073E2F0 /* AutoOpDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 78347EB91158D4B00073E2F0 /* AutoOpDialog.xib */; };
@@ -24,12 +27,29 @@
 		78347EDF1158D4B00073E2F0 /* WhoisDialog.xib in Resources */ = {isa = PBXBuildFile; fileRef = 78347ED11158D4B00073E2F0 /* WhoisDialog.xib */; };
 		7835FB921177341D005DC0B4 /* ListDialog.m in Sources */ = {isa = PBXBuildFile; fileRef = 7835FB911177341D005DC0B4 /* ListDialog.m */; };
 		783E6ADB1173802100261552 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 783E6AD91173802100261552 /* main.m */; };
+		784773D8117EB07400466C56 /* OnigRegexp.m in Sources */ = {isa = PBXBuildFile; fileRef = 784773BF117EB07400466C56 /* OnigRegexp.m */; };
+		784773DB117EB07400466C56 /* ascii.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773C6117EB07400466C56 /* ascii.c */; };
+		784773DC117EB07400466C56 /* unicode.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773C7117EB07400466C56 /* unicode.c */; };
+		784773DD117EB07400466C56 /* utf16_le.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773C8117EB07400466C56 /* utf16_le.c */; };
+		784773DE117EB07400466C56 /* regcomp.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773CA117EB07400466C56 /* regcomp.c */; };
+		784773DF117EB07400466C56 /* regenc.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773CB117EB07400466C56 /* regenc.c */; };
+		784773E0117EB07400466C56 /* regerror.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773CD117EB07400466C56 /* regerror.c */; };
+		784773E1117EB07400466C56 /* regexec.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773CE117EB07400466C56 /* regexec.c */; };
+		784773E2117EB07400466C56 /* regext.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773CF117EB07400466C56 /* regext.c */; };
+		784773E3117EB07400466C56 /* regparse.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773D1117EB07400466C56 /* regparse.c */; };
+		784773E4117EB07400466C56 /* regsyntax.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773D3117EB07400466C56 /* regsyntax.c */; };
+		784773E5117EB07400466C56 /* regtrav.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773D4117EB07400466C56 /* regtrav.c */; };
+		784773E6117EB07400466C56 /* regversion.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773D5117EB07400466C56 /* regversion.c */; };
+		784773E7117EB07400466C56 /* st.c in Sources */ = {isa = PBXBuildFile; fileRef = 784773D6117EB07400466C56 /* st.c */; };
 		784BBE941085BC950080898B /* bluestar.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 784BBE901085BC950080898B /* bluestar.tiff */; };
 		784BBE951085BC950080898B /* keyrecorder_erase.png in Resources */ = {isa = PBXBuildFile; fileRef = 784BBE911085BC950080898B /* keyrecorder_erase.png */; };
 		784BBE961085BC950080898B /* keyrecorder_erase_pushed.png in Resources */ = {isa = PBXBuildFile; fileRef = 784BBE921085BC950080898B /* keyrecorder_erase_pushed.png */; };
 		784BBE971085BC950080898B /* redstar.tiff in Resources */ = {isa = PBXBuildFile; fileRef = 784BBE931085BC950080898B /* redstar.tiff */; };
 		7851AEF71168A91A00AC449F /* libicucore.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 7851AEF61168A91A00AC449F /* libicucore.dylib */; };
 		78835406109FEA7F00CD2FFF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 78835405109FEA7F00CD2FFF /* SystemConfiguration.framework */; };
+		789ED3F31193EF4400CFC0B2 /* IgnoreItem.m in Sources */ = {isa = PBXBuildFile; fileRef = 789ED3F21193EF4400CFC0B2 /* IgnoreItem.m */; };
+		789ED4841193F9EB00CFC0B2 /* IgnoreItemSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 789ED4831193F9EB00CFC0B2 /* IgnoreItemSheet.m */; };
+		789ED4B31193FA9E00CFC0B2 /* IgnoreItemSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 789ED4B11193FA9E00CFC0B2 /* IgnoreItemSheet.xib */; };
 		78A7B4F61174427C006B324A /* NSData+Kana.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A7B4F51174427C006B324A /* NSData+Kana.m */; };
 		78A7B58711744F12006B324A /* InviteSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A7B58611744F12006B324A /* InviteSheet.m */; };
 		78A7B5DA11745616006B324A /* InviteSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 78A7B5D811745616006B324A /* InviteSheet.xib */; };
@@ -91,7 +111,6 @@
 		78A8C1DD11737F660044E7A1 /* IconController.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A8C13A11737F660044E7A1 /* IconController.m */; };
 		78A8C1DE11737F660044E7A1 /* InputHistory.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A8C13C11737F660044E7A1 /* InputHistory.m */; };
 		78A8C1DF11737F660044E7A1 /* KeyEventHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A8C13E11737F660044E7A1 /* KeyEventHandler.m */; };
-		78A8C1E011737F660044E7A1 /* Regex.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A8C14011737F660044E7A1 /* Regex.m */; };
 		78A8C1E111737F660044E7A1 /* TCPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A8C14211737F660044E7A1 /* TCPClient.m */; };
 		78A8C1E211737F660044E7A1 /* TCPServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A8C14411737F660044E7A1 /* TCPServer.m */; };
 		78A8C1E311737F660044E7A1 /* Timer.m in Sources */ = {isa = PBXBuildFile; fileRef = 78A8C14611737F660044E7A1 /* Timer.m */; };
@@ -178,6 +197,12 @@
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		780253C20C09525900C170D4 /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
+		780C67C611822AFF00CB739F /* ImageURLParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageURLParser.h; sourceTree = "<group>"; };
+		780C67C711822AFF00CB739F /* ImageURLParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ImageURLParser.m; sourceTree = "<group>"; };
+		780C685C118230EE00CB739F /* WebViewAutoScroll.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WebViewAutoScroll.h; sourceTree = "<group>"; };
+		780C685D118230EE00CB739F /* WebViewAutoScroll.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WebViewAutoScroll.m; sourceTree = "<group>"; };
+		780FF69D11813BC3003C7648 /* CustomJSFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomJSFile.h; sourceTree = "<group>"; };
+		780FF69E11813BC3003C7648 /* CustomJSFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomJSFile.m; sourceTree = "<group>"; };
 		78287EA90D742DAA008D5656 /* Themes */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Themes; path = Resources/Themes; sourceTree = "<group>"; };
 		782FCF871173824C007BE697 /* LimeChatApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LimeChatApplication.h; sourceTree = "<group>"; };
 		782FCF881173824C007BE697 /* LimeChatApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LimeChatApplication.m; sourceTree = "<group>"; };
@@ -198,6 +223,27 @@
 		7835FB911177341D005DC0B4 /* ListDialog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ListDialog.m; sourceTree = "<group>"; };
 		783E6AD61173802100261552 /* LimeChat_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LimeChat_Prefix.pch; sourceTree = "<group>"; };
 		783E6AD91173802100261552 /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		784773BE117EB07400466C56 /* OnigRegexp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OnigRegexp.h; sourceTree = "<group>"; };
+		784773BF117EB07400466C56 /* OnigRegexp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OnigRegexp.m; sourceTree = "<group>"; };
+		784773C3117EB07400466C56 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		784773C6117EB07400466C56 /* ascii.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ascii.c; sourceTree = "<group>"; };
+		784773C7117EB07400466C56 /* unicode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = unicode.c; sourceTree = "<group>"; };
+		784773C8117EB07400466C56 /* utf16_le.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = utf16_le.c; sourceTree = "<group>"; };
+		784773C9117EB07400466C56 /* oniguruma.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = oniguruma.h; sourceTree = "<group>"; };
+		784773CA117EB07400466C56 /* regcomp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regcomp.c; sourceTree = "<group>"; };
+		784773CB117EB07400466C56 /* regenc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regenc.c; sourceTree = "<group>"; };
+		784773CC117EB07400466C56 /* regenc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regenc.h; sourceTree = "<group>"; };
+		784773CD117EB07400466C56 /* regerror.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regerror.c; sourceTree = "<group>"; };
+		784773CE117EB07400466C56 /* regexec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regexec.c; sourceTree = "<group>"; };
+		784773CF117EB07400466C56 /* regext.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regext.c; sourceTree = "<group>"; };
+		784773D0117EB07400466C56 /* regint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regint.h; sourceTree = "<group>"; };
+		784773D1117EB07400466C56 /* regparse.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regparse.c; sourceTree = "<group>"; };
+		784773D2117EB07400466C56 /* regparse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = regparse.h; sourceTree = "<group>"; };
+		784773D3117EB07400466C56 /* regsyntax.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regsyntax.c; sourceTree = "<group>"; };
+		784773D4117EB07400466C56 /* regtrav.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regtrav.c; sourceTree = "<group>"; };
+		784773D5117EB07400466C56 /* regversion.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = regversion.c; sourceTree = "<group>"; };
+		784773D6117EB07400466C56 /* st.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = st.c; sourceTree = "<group>"; };
+		784773D7117EB07400466C56 /* st.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = st.h; sourceTree = "<group>"; };
 		784BBE901085BC950080898B /* bluestar.tiff */ = {isa = PBXFileReference; lastKnownFileType = image.tiff; path = bluestar.tiff; sourceTree = "<group>"; };
 		784BBE911085BC950080898B /* keyrecorder_erase.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = keyrecorder_erase.png; sourceTree = "<group>"; };
 		784BBE921085BC950080898B /* keyrecorder_erase_pushed.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = keyrecorder_erase_pushed.png; sourceTree = "<group>"; };
@@ -206,6 +252,11 @@
 		787FD46C0BFE960100F2F22D /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		78835405109FEA7F00CD2FFF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		788D56F00BB6872B00DDBF69 /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = /System/Library/Frameworks/WebKit.framework; sourceTree = "<absolute>"; };
+		789ED3F11193EF4400CFC0B2 /* IgnoreItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IgnoreItem.h; sourceTree = "<group>"; };
+		789ED3F21193EF4400CFC0B2 /* IgnoreItem.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IgnoreItem.m; sourceTree = "<group>"; };
+		789ED4821193F9EB00CFC0B2 /* IgnoreItemSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IgnoreItemSheet.h; sourceTree = "<group>"; };
+		789ED4831193F9EB00CFC0B2 /* IgnoreItemSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = IgnoreItemSheet.m; sourceTree = "<group>"; };
+		789ED4B21193FA9E00CFC0B2 /* English */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = English; path = English.lproj/IgnoreItemSheet.xib; sourceTree = "<group>"; };
 		78A7B4F41174427C006B324A /* NSData+Kana.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+Kana.h"; sourceTree = "<group>"; };
 		78A7B4F51174427C006B324A /* NSData+Kana.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+Kana.m"; sourceTree = "<group>"; };
 		78A7B58511744F12006B324A /* InviteSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InviteSheet.h; sourceTree = "<group>"; };
@@ -330,8 +381,6 @@
 		78A8C13C11737F660044E7A1 /* InputHistory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = InputHistory.m; sourceTree = "<group>"; };
 		78A8C13D11737F660044E7A1 /* KeyEventHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyEventHandler.h; sourceTree = "<group>"; };
 		78A8C13E11737F660044E7A1 /* KeyEventHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyEventHandler.m; sourceTree = "<group>"; };
-		78A8C13F11737F660044E7A1 /* Regex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Regex.h; sourceTree = "<group>"; };
-		78A8C14011737F660044E7A1 /* Regex.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Regex.m; sourceTree = "<group>"; };
 		78A8C14111737F660044E7A1 /* TCPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPClient.h; sourceTree = "<group>"; };
 		78A8C14211737F660044E7A1 /* TCPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TCPClient.m; sourceTree = "<group>"; };
 		78A8C14311737F660044E7A1 /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
@@ -491,6 +540,7 @@
 				78347EC51158D4B00073E2F0 /* ModeSheet.xib */,
 				78347ECD1158D4B00073E2F0 /* ServerDialog.xib */,
 				78347EBB1158D4B00073E2F0 /* ChannelDialog.xib */,
+				789ED4B11193FA9E00CFC0B2 /* IgnoreItemSheet.xib */,
 				78347EC91158D4B00073E2F0 /* PasteSheet.xib */,
 				78347EBD1158D4B00073E2F0 /* TopicSheet.xib */,
 				78347EBF1158D4B00073E2F0 /* DCCDialog.xib */,
@@ -528,6 +578,50 @@
 				783E6AD91173802100261552 /* main.m */,
 			);
 			path = Others;
+			sourceTree = "<group>";
+		};
+		784773BD117EB07400466C56 /* CocoaOniguruma */ = {
+			isa = PBXGroup;
+			children = (
+				784773C2117EB07400466C56 /* oniguruma */,
+				784773BE117EB07400466C56 /* OnigRegexp.h */,
+				784773BF117EB07400466C56 /* OnigRegexp.m */,
+			);
+			path = CocoaOniguruma;
+			sourceTree = "<group>";
+		};
+		784773C2117EB07400466C56 /* oniguruma */ = {
+			isa = PBXGroup;
+			children = (
+				784773C5117EB07400466C56 /* enc */,
+				784773C3117EB07400466C56 /* config.h */,
+				784773C9117EB07400466C56 /* oniguruma.h */,
+				784773CA117EB07400466C56 /* regcomp.c */,
+				784773CB117EB07400466C56 /* regenc.c */,
+				784773CC117EB07400466C56 /* regenc.h */,
+				784773CD117EB07400466C56 /* regerror.c */,
+				784773CE117EB07400466C56 /* regexec.c */,
+				784773CF117EB07400466C56 /* regext.c */,
+				784773D0117EB07400466C56 /* regint.h */,
+				784773D1117EB07400466C56 /* regparse.c */,
+				784773D2117EB07400466C56 /* regparse.h */,
+				784773D3117EB07400466C56 /* regsyntax.c */,
+				784773D4117EB07400466C56 /* regtrav.c */,
+				784773D5117EB07400466C56 /* regversion.c */,
+				784773D6117EB07400466C56 /* st.c */,
+				784773D7117EB07400466C56 /* st.h */,
+			);
+			path = oniguruma;
+			sourceTree = "<group>";
+		};
+		784773C5117EB07400466C56 /* enc */ = {
+			isa = PBXGroup;
+			children = (
+				784773C6117EB07400466C56 /* ascii.c */,
+				784773C7117EB07400466C56 /* unicode.c */,
+				784773C8117EB07400466C56 /* utf16_le.c */,
+			);
+			path = enc;
 			sourceTree = "<group>";
 		};
 		784BBE8F1085BC950080898B /* images */ = {
@@ -568,6 +662,8 @@
 				78A8C0DC11737F660044E7A1 /* Preferences */,
 				78A8C0E111737F660044E7A1 /* ServerDialog.h */,
 				78A8C0E211737F660044E7A1 /* ServerDialog.m */,
+				789ED4821193F9EB00CFC0B2 /* IgnoreItemSheet.h */,
+				789ED4831193F9EB00CFC0B2 /* IgnoreItemSheet.m */,
 				78A8C0CB11737F660044E7A1 /* ChannelDialog.h */,
 				78A8C0CC11737F660044E7A1 /* ChannelDialog.m */,
 				78A8C0DA11737F660044E7A1 /* PasteSheet.h */,
@@ -694,6 +790,8 @@
 				78A8C11F11737F660044E7A1 /* IRCPrefix.m */,
 				78A8C12011737F660044E7A1 /* IRCSendingMessage.h */,
 				78A8C12111737F660044E7A1 /* IRCSendingMessage.m */,
+				789ED3F11193EF4400CFC0B2 /* IgnoreItem.h */,
+				789ED3F21193EF4400CFC0B2 /* IgnoreItem.m */,
 				78A8C12C11737F660044E7A1 /* TimerCommand.h */,
 				78A8C12D11737F660044E7A1 /* TimerCommand.m */,
 				78A8C10D11737F660044E7A1 /* IRC.h */,
@@ -705,6 +803,8 @@
 		78A8C12E11737F660044E7A1 /* Library */ = {
 			isa = PBXGroup;
 			children = (
+				784773BD117EB07400466C56 /* CocoaOniguruma */,
+				78A8C14911737F660044E7A1 /* YAML */,
 				78A8C12F11737F660044E7A1 /* AsyncSocket.h */,
 				78A8C13011737F660044E7A1 /* AsyncSocket.m */,
 				78A8C13111737F660044E7A1 /* FileLogger.h */,
@@ -721,8 +821,6 @@
 				78A8C13C11737F660044E7A1 /* InputHistory.m */,
 				78A8C13D11737F660044E7A1 /* KeyEventHandler.h */,
 				78A8C13E11737F660044E7A1 /* KeyEventHandler.m */,
-				78A8C13F11737F660044E7A1 /* Regex.h */,
-				78A8C14011737F660044E7A1 /* Regex.m */,
 				78A8C14111737F660044E7A1 /* TCPClient.h */,
 				78A8C14211737F660044E7A1 /* TCPClient.m */,
 				78A8C14311737F660044E7A1 /* TCPServer.h */,
@@ -731,7 +829,6 @@
 				78A8C14611737F660044E7A1 /* Timer.m */,
 				78A8C14711737F660044E7A1 /* TinyGrowlClient.h */,
 				78A8C14811737F660044E7A1 /* TinyGrowlClient.m */,
-				78A8C14911737F660044E7A1 /* YAML */,
 			);
 			name = Library;
 			path = Classes/Library;
@@ -792,6 +889,8 @@
 				78A8C16911737F660044E7A1 /* LogTheme.m */,
 				78A8C16A11737F660044E7A1 /* OtherTheme.h */,
 				78A8C16B11737F660044E7A1 /* OtherTheme.m */,
+				780FF69D11813BC3003C7648 /* CustomJSFile.h */,
+				780FF69E11813BC3003C7648 /* CustomJSFile.m */,
 			);
 			name = Preferences;
 			path = Classes/Preferences;
@@ -864,6 +963,10 @@
 				78A8C18C11737F660044E7A1 /* LogScriptEventSink.m */,
 				78A8C18D11737F660044E7A1 /* LogView.h */,
 				78A8C18E11737F660044E7A1 /* LogView.m */,
+				780C685C118230EE00CB739F /* WebViewAutoScroll.h */,
+				780C685D118230EE00CB739F /* WebViewAutoScroll.m */,
+				780C67C611822AFF00CB739F /* ImageURLParser.h */,
+				780C67C711822AFF00CB739F /* ImageURLParser.m */,
 			);
 			path = Log;
 			sourceTree = "<group>";
@@ -908,7 +1011,14 @@
 			isa = PBXProject;
 			buildConfigurationList = C01FCF4E08A954540054247B /* Build configuration list for PBXProject "LimeChat" */;
 			compatibilityVersion = "Xcode 2.4";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 29B97314FDCFA39411CA2CEA /* LimeChat */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -946,6 +1056,7 @@
 				78A8C1E511737F660044E7A1 /* README in Resources */,
 				78A8C1E711737F660044E7A1 /* COPYING in Resources */,
 				78A7B5DA11745616006B324A /* InviteSheet.xib in Resources */,
+				789ED4B31193FA9E00CFC0B2 /* IgnoreItemSheet.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1014,7 +1125,6 @@
 				78A8C1DD11737F660044E7A1 /* IconController.m in Sources */,
 				78A8C1DE11737F660044E7A1 /* InputHistory.m in Sources */,
 				78A8C1DF11737F660044E7A1 /* KeyEventHandler.m in Sources */,
-				78A8C1E011737F660044E7A1 /* Regex.m in Sources */,
 				78A8C1E111737F660044E7A1 /* TCPClient.m in Sources */,
 				78A8C1E211737F660044E7A1 /* TCPServer.m in Sources */,
 				78A8C1E311737F660044E7A1 /* Timer.m in Sources */,
@@ -1065,6 +1175,25 @@
 				78A7B4F61174427C006B324A /* NSData+Kana.m in Sources */,
 				78A7B58711744F12006B324A /* InviteSheet.m in Sources */,
 				7835FB921177341D005DC0B4 /* ListDialog.m in Sources */,
+				784773D8117EB07400466C56 /* OnigRegexp.m in Sources */,
+				784773DB117EB07400466C56 /* ascii.c in Sources */,
+				784773DC117EB07400466C56 /* unicode.c in Sources */,
+				784773DD117EB07400466C56 /* utf16_le.c in Sources */,
+				784773DE117EB07400466C56 /* regcomp.c in Sources */,
+				784773DF117EB07400466C56 /* regenc.c in Sources */,
+				784773E0117EB07400466C56 /* regerror.c in Sources */,
+				784773E1117EB07400466C56 /* regexec.c in Sources */,
+				784773E2117EB07400466C56 /* regext.c in Sources */,
+				784773E3117EB07400466C56 /* regparse.c in Sources */,
+				784773E4117EB07400466C56 /* regsyntax.c in Sources */,
+				784773E5117EB07400466C56 /* regtrav.c in Sources */,
+				784773E6117EB07400466C56 /* regversion.c in Sources */,
+				784773E7117EB07400466C56 /* st.c in Sources */,
+				780FF69F11813BC3003C7648 /* CustomJSFile.m in Sources */,
+				780C67C811822AFF00CB739F /* ImageURLParser.m in Sources */,
+				780C685E118230EE00CB739F /* WebViewAutoScroll.m in Sources */,
+				789ED3F31193EF4400CFC0B2 /* IgnoreItem.m in Sources */,
+				789ED4841193F9EB00CFC0B2 /* IgnoreItemSheet.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1175,6 +1304,14 @@
 			name = WhoisDialog.xib;
 			sourceTree = "<group>";
 		};
+		789ED4B11193FA9E00CFC0B2 /* IgnoreItemSheet.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				789ED4B21193FA9E00CFC0B2 /* English */,
+			);
+			name = IgnoreItemSheet.xib;
+			sourceTree = "<group>";
+		};
 		78A7B5D811745616006B324A /* InviteSheet.xib */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -1222,7 +1359,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = LimeChat;
-				SDKROOT = "";
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = YES;
 			};
@@ -1254,7 +1391,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = LimeChat;
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = app;
 				ZERO_LINK = NO;
 			};
@@ -1271,15 +1408,15 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				ONLY_ACTIVE_ARCH_PRE_XCODE_3_1 = "$(NATIVE_ARCH_ACTUAL)";
 				PREBINDING = NO;
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
 		C01FCF5008A954540054247B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1)";
-				ARCHS_STANDARD_32_BIT_PRE_XCODE_3_1 = "ppc i386";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1)";
+				ARCHS_STANDARD_32_64_BIT_PRE_XCODE_3_1 = "x86_64 i386 ppc";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
@@ -1287,7 +1424,7 @@
 				INSTALL_PATH = /Applications;
 				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PREBINDING = NO;
-				SDKROOT = /Developer/SDKs/MacOSX10.5.sdk;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};

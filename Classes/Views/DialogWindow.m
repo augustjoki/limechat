@@ -1,17 +1,16 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "DialogWindow.h"
 
 
 @implementation DialogWindow
 
-@synthesize keyDelegate;
-
 - (void)sendEvent:(NSEvent *)e
 {
-	if (keyDelegate) {
-		if ([e type] == NSKeyDown) {
+	if ([e type] == NSKeyDown) {
+		NSInputManager* im = [NSInputManager currentInputManager];
+		if (!im || !im.markedRange.length) {
 			int k = [e keyCode];
 			NSUInteger m = [e modifierFlags];
 			BOOL shift = m & NSShiftKeyMask != 0;
@@ -22,30 +21,8 @@
 			if (!shift && !ctrl && !alt && !cmd) {
 				// no mods
 				switch (k) {
-					case 53:	// esc
-						if ([keyDelegate respondsToSelector:@selector(dialogWindowEscape)]) {
-							[keyDelegate dialogWindowEscape];
-						}
-						return;
-					case 76:	// enter
-						if ([keyDelegate respondsToSelector:@selector(dialogWindowEnter)]) {
-							[keyDelegate dialogWindowEnter];
-						}
-						return;
-				}
-			}
-			else if (!shift && !ctrl && !alt && cmd || !shift && ctrl && !alt && !cmd) {
-				// no mods
-				switch (k) {
-					case 125:	// down
-						if ([keyDelegate respondsToSelector:@selector(dialogWindowMoveDown)]) {
-							[keyDelegate dialogWindowMoveDown];
-						}
-						return;
-					case 126:	// up
-						if ([keyDelegate respondsToSelector:@selector(dialogWindowMoveUp)]) {
-							[keyDelegate dialogWindowMoveUp];
-						}
+					case 0x35:	// esc
+						[self close];
 						return;
 				}
 			}

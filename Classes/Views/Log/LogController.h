@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import <Cocoa/Cocoa.h>
 #import "LogView.h"
@@ -8,6 +8,7 @@
 #import "LogLine.h"
 #import "MarkedScroller.h"
 #import "ViewTheme.h"
+#import "WebViewAutoScroll.h"
 
 
 @class IRCWorld;
@@ -22,6 +23,7 @@
 	LogScriptEventSink* sink;
 	MarkedScroller* scroller;
 	WebScriptObject* js;
+	WebViewAutoScroll* autoScroller;
 
 	IRCWorld* world;
 	IRCClient* client;
@@ -36,7 +38,9 @@
 	BOOL console;
 	NSColor* initialBackgroundColor;
 	
+	BOOL becameVisible;
 	BOOL bottom;
+	BOOL movingToBottom;
 	NSMutableArray* lines;
 	int lineNumber;
 	int count;
@@ -66,6 +70,7 @@
 @property (nonatomic, readonly) BOOL viewingBottom;
 
 - (void)setUp;
+- (void)notifyDidBecomeVisible;
 
 - (void)moveToTop;
 - (void)moveToBottom;

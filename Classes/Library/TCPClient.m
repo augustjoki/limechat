@@ -1,7 +1,11 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "TCPClient.h"
+
+
+#define LF	0xa
+#define CR	0xd
 
 
 @interface TCPClient (Private)
@@ -44,7 +48,7 @@
 	
 	conn = [socket retain];
 	conn.delegate = self;
-	[conn setUserData:[NSNumber numberWithInt:tag]];
+	[conn setUserData:tag];
 	active = connecting = YES;
 	sendQueueSize = 0;
 	
@@ -75,8 +79,8 @@
 	[buffer setLength:0];
 	++tag;
 	
-	conn = [[AsyncSocket alloc] initWithDelegate:self userData:[NSNumber numberWithInt:tag]];
-	[conn connectToHost:host onPort:[NSNumber numberWithInt:port] error:NULL];
+	conn = [[AsyncSocket alloc] initWithDelegate:self userData:tag];
+	[conn connectToHost:host onPort:port error:NULL];
 	active = connecting = YES;
 	sendQueueSize = 0;
 }
@@ -108,13 +112,13 @@
 	if (!len) return nil;
 	
 	const char* bytes = [buffer bytes];
-	char* p = memchr(bytes, 0xa, len);
+	char* p = memchr(bytes, LF, len);
 	if (!p) return nil;
 	int n = p - bytes;
 	
 	if (n > 0) {
 		char prev = *(p - 1);
-		if (prev == 0xd) {
+		if (prev == CR) {
 			--n;
 		}
 	}
@@ -150,7 +154,7 @@
 	return [conn isConnected];
 }
 
-- (void)onSocketWillConnect:(AsyncSocket*)sender
+- (BOOL)onSocketWillConnect:(AsyncSocket*)sender
 {
 	if (useSystemSocks) {
 		[conn useSystemSocksProxy];
@@ -161,9 +165,10 @@
 	else if (useSSL) {
 		[conn useSSL];
 	}
+	return YES;
 }
 
-- (void)onSocket:(AsyncSocket*)sender didConnectToHost:(NSString*)aHost port:(NSNumber*)aPort
+- (void)onSocket:(AsyncSocket *)sender didConnectToHost:(NSString *)aHost port:(UInt16)aPort
 {
 	if (![self checkTag:sender]) return;
 	[self waitRead];
@@ -205,7 +210,7 @@
 	}
 }
 
-- (void)onSocket:(AsyncSocket*)sender didReadData:(NSData*)data withTag:(NSNumber*)aTag
+- (void)onSocket:(AsyncSocket *)sender didReadData:(NSData *)data withTag:(long)aTag
 {
 	if (![self checkTag:sender]) return;
 	
@@ -218,7 +223,7 @@
 	[self waitRead];
 }
 
-- (void)onSocket:(AsyncSocket*)sender didWriteDataWithTag:(NSNumber*)aTag
+- (void)onSocket:(AsyncSocket*)sender didWriteDataWithTag:(long)aTag
 {
 	if (![self checkTag:sender]) return;
 	
@@ -231,7 +236,7 @@
 
 - (BOOL)checkTag:(AsyncSocket*)sock
 {
-	return tag == [[sock userData] intValue];
+	return tag == [sock userData];
 }
 
 - (void)waitRead

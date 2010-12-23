@@ -1,4 +1,8 @@
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
+
 #import "AppController.h"
+#import <Carbon/Carbon.h>
 #import "Preferences.h"
 #import "IRCTreeItem.h"
 #import "NSDictionaryHelper.h"
@@ -7,7 +11,7 @@
 #import "IRCClient.h"
 #import "ViewTheme.h"
 #import "MemberListViewCell.h"
-#import "Regex.h"
+#import "OnigRegexp.h"
 #import "NSPasteboardHelper.h"
 #import "NSStringHelper.h"
 #import "NSLocaleHelper.h"
@@ -135,8 +139,8 @@
 	world.chatBox = chatBox;
 	world.fieldEditor = fieldEditor;
 	world.memberList = memberList;
-	world.serverMenu = serverMenu;
-	world.channelMenu = channelMenu;
+	[world setServerMenuItem:serverMenu];
+	[world setChannelMenuItem:channelMenu];
 	world.treeMenu = treeMenu;
 	world.logMenu = logMenu;
 	world.consoleMenu = consoleMenu;
@@ -310,6 +314,14 @@
 }
 
 #pragma mark -
+#pragma mark SUUpdater Delegate
+
+- (void)updaterWillRelaunchApplication:(id)sender
+{
+	terminating = YES;
+}
+
+#pragma mark -
 #pragma mark NSWorkspace Notifications
 
 - (void)computerWillSleep:(NSNotification*)note
@@ -369,13 +381,14 @@
 	IRCClient* client = world.selectedClient;
 	IRCChannel* channel = world.selectedChannel;
 	if (channel) {
-		static Regex* regex = nil;
+		static OnigRegexp* regex = nil;
 		if (!regex) {
-			regex = [[Regex alloc] initWithString:@"(\r\n|\r|\n)[^\r\n]"];
+			NSString* pattern = @"(\r\n|\r|\n)[^\r\n]";
+			regex = [[OnigRegexp compile:pattern] retain];
 		}
 		
-		NSRange r = [regex match:s];
-		if (r.location != NSNotFound) {
+		OnigResult* result = [regex search:s];
+		if (result) {
 			// multi line
 			[menu startPasteSheetWithContent:s nick:client.myNick uid:client.uid cid:channel.uid editMode:YES];
 			return YES;
@@ -605,11 +618,15 @@
 	
 	if (commandMode) {
 		choices = [NSArray arrayWithObjects:
-				   @"action", @"away", @"ban", @"clear", @"ctcp", @"ctcpquery", @"cycle",
-				   @"hop", @"invite", @"j", @"join", @"kick", @"kill", @"leave", @"list",
-				   @"me", @"mode", @"msg", @"nick", @"notice", @"op", @"part", @"ping",
-				   @"privmsg", @"query", @"quit", @"quote", @"raw", @"rejoin", @"t",
-				   @"timer", @"topic", @"unban", @"voice", @"weights",
+				   @"action", @"away", @"ban", @"clear", @"close",
+				   @"ctcp", @"ctcpreply", @"cycle", @"dehalfop", @"deop",
+				   @"devoice", @"halfop", @"hop", @"ignore", @"invite",
+				   @"ison", @"join", @"kick", @"leave", @"list",
+				   @"me", @"mode", @"msg", @"nick", @"notice",
+				   @"op", @"part", @"pong", @"privmsg", @"query",
+				   @"quit", @"quote", @"raw", @"rejoin", @"timer",
+				   @"topic", @"umode", @"unban", @"unignore", @"voice",
+				   @"weights", @"who", @"whois", @"whowas",
 				   nil];
 		lowerChoices = choices;
 	}
@@ -1056,10 +1073,10 @@ typedef enum {
 	NSString* host = [config objectForKey:@"host"];
 	NSString* name = host;
 	
-	Regex* hostRegex = [[[Regex alloc] initWithString:@"^[^ ]+ +\\(([^()]+)\\)"] autorelease];
-	NSRange r = [hostRegex match:host];
-	if (r.location != NSNotFound) {
-		name = [host substringWithRange:[hostRegex groupAt:1]];
+	OnigRegexp* hostRegex = [OnigRegexp compile:@"^[^\\s]+\\s+\\(([^()]+)\\)"];
+	OnigResult* result = [hostRegex search:host];
+	if (result) {
+		name = [host substringWithRange:[result rangeAt:1]];
 	}
 	
 	NSString* nick = [config objectForKey:@"nick"];

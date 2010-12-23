@@ -1,9 +1,9 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "NSStringHelper.h"
 #import "UnicodeHelper.h"
-#import "Regex.h"
+#import "OnigRegexp.h"
 
 
 #define LF	0xa
@@ -143,6 +143,23 @@
 	for (NSInteger i=0; i<len; ++i) {
 		UniChar c = buffer[i];
 		if (!(IsNumeric(c))) {
+			return NO;
+		}
+	}
+	return YES;
+}
+
+- (BOOL)isAlphaNumOnly
+{
+	NSUInteger len = self.length;
+	if (!len) return NO;
+	
+	const UniChar* buffer = [self getCharactersBuffer];
+	if (!buffer) return NO;
+	
+	for (NSInteger i=0; i<len; ++i) {
+		UniChar c = buffer[i];
+		if (!(IsAlphaNum(c))) {
 			return NO;
 		}
 	}
@@ -345,15 +362,39 @@ BOOL isUnicharDigit(unichar c)
 {
 	if (self.length <= start) return NSMakeRange(NSNotFound, 0);
 	
-	static Regex* regex = nil;
+	static OnigRegexp* regex = nil;
 	if (!regex) {
-		NSString* pattern = @"(?<![a-zA-Z0-9_])(https?|ftp|itms)://[^ !\"#$\\&'()*+,/;<=>?\\[\\\\\\]\\^_`{|}　、，。．・…]+(/[^ \"'`<>　、，。．・…]*)?";
-		regex = [[Regex alloc] initWithString:pattern options:UREGEX_CASE_INSENSITIVE];
+		NSString* pattern = @"(?<![a-z0-9_])(https?|ftp|itms)://([^\\s!\"#$\\&'()*+,/;<=>?\\[\\\\\\]\\^_`{|}　、，。．・…]+)(/[^\\s\"'`<>　、，。．・…]*)?";
+		regex = [[OnigRegexp compileIgnorecase:pattern] retain];
 	}
 	
-	NSRange r = [regex match:self start:start];
-	[regex reset];
-	if (r.location == NSNotFound) return r;
+	OnigResult* result = [regex search:self start:start];
+	if (!result) return NSMakeRange(NSNotFound, 0);
+	
+	NSRange r = result.bodyRange;
+	
+	// exclude non ASCII characters from URLs except for wikipedia
+	NSString* host = [[self substringWithRange:[result rangeAt:2]] lowercaseString];
+	if (![host hasSuffix:@"wikipedia.org"]) {
+		NSRange pathRange = [result rangeAt:3];
+		NSString* path = [self substringWithRange:pathRange];
+		if (path.length) {
+			static OnigRegexp* pathRegex = nil;
+			if (!pathRegex) {
+				NSString* pathPattern = @"^/[a-zA-Z0-9\\-._~!#$%&'()*+,-./:;=?@\\[\\]]*";
+				pathRegex = [[OnigRegexp compile:pathPattern] retain];
+			}
+			
+			OnigResult* pathResult = [pathRegex search:path];
+			if (pathResult) {
+				NSRange newPathRange = pathResult.bodyRange;
+				int delta = pathRange.length - newPathRange.length;
+				if (delta > 0) {
+					r.length -= delta;
+				}
+			}
+		}
+	}
 	
 	NSString* url = [self substringWithRange:r];
 	
@@ -416,15 +457,16 @@ BOOL isUnicharDigit(unichar c)
 	int len = self.length;
 	if (len <= start) return NSMakeRange(NSNotFound, 0);
 	
-	static Regex* regex = nil;
+	static OnigRegexp* regex = nil;
 	if (!regex) {
 		NSString* pattern = @"([a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?\\.)([a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?\\.)+[a-zA-Z]{2,6}|([a-f0-9]{0,4}:){7}[a-f0-9]{0,4}|([0-9]{1,3}\\.){3}[0-9]{1,3}";
-		regex = [[Regex alloc] initWithString:pattern];
+		regex = [[OnigRegexp compile:pattern] retain];
 	}
 	
-	NSRange r = [regex match:self start:start];
-	[regex reset];
-	if (r.location == NSNotFound) return r;
+	OnigResult* result = [regex search:self start:start];
+	if (!result) return NSMakeRange(NSNotFound, 0);
+	
+	NSRange r = result.bodyRange;
 	
 	int prev = r.location - 1;
 	if (0 <= prev && prev < len) {
@@ -457,15 +499,16 @@ BOOL isUnicharDigit(unichar c)
 	int len = self.length;
 	if (len <= start) return NSMakeRange(NSNotFound, 0);
 	
-	static Regex* regex = nil;
+	static OnigRegexp* regex = nil;
 	if (!regex) {
 		NSString* pattern = @"(?<![a-zA-Z0-9_])[#\\&][^ \\t,　]+";
-		regex = [[Regex alloc] initWithString:pattern];
+		regex = [[OnigRegexp compile:pattern] retain];
 	}
 	
-	NSRange r = [regex match:self start:start];
-	[regex reset];
-	if (r.location == NSNotFound) return r;
+	OnigResult* result = [regex search:self start:start];
+	if (!result) return NSMakeRange(NSNotFound, 0);
+
+	NSRange r = result.bodyRange;
 	
 	int prev = r.location - 1;
 	if (0 <= prev && prev < len) {
@@ -488,6 +531,76 @@ BOOL isUnicharDigit(unichar c)
 	return r;
 }
 
+- (NSString*)encodeURIComponent
+{
+	if (!self.length) return @"";
+	
+	static const char* characters = "0123456789ABCDEF";
+	
+	const char* src = [self UTF8String];
+	if (!src) return @"";
+	
+	NSUInteger len = [self lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+	char buf[len*4];
+	char* dest = buf;
+	
+	for (NSInteger i=len-1; i>=0; --i) {
+		unsigned char c = *src++;
+		if (IsWordLetter(c) || c == '-' || c == '.' || c == '~') {
+			*dest++ = c;
+		}
+		else {
+			*dest++ = '%';
+			*dest++ = characters[c / 16];
+			*dest++ = characters[c % 16];
+		}
+	}
+	
+	return [[[NSString alloc] initWithBytes:buf length:dest - buf encoding:NSASCIIStringEncoding] autorelease];
+}
+
+- (NSString*)encodeURIFragment
+{
+	if (!self.length) return @"";
+	
+	static const char* characters = "0123456789ABCDEF";
+	
+	const char* src = [self UTF8String];
+	if (!src) return @"";
+	
+	NSUInteger len = [self lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+	char buf[len*4];
+	char* dest = buf;
+	
+	for (NSInteger i=len-1; i>=0; --i) {
+		unsigned char c = *src++;
+		if (IsWordLetter(c)
+			|| c == '#'
+			|| c == '%'
+			|| c == '&'
+			|| c == '+'
+			|| c == ','
+			|| c == '-'
+			|| c == '.'
+			|| c == '/'
+			|| c == ':'
+			|| c == ';'
+			|| c == '='
+			|| c == '?'
+			|| c == '@'
+			|| c == '~') {
+			*dest++ = c;
+		}
+		else {
+			*dest++ = '%';
+			*dest++ = characters[c / 16];
+			*dest++ = characters[c % 16];
+		}
+	}
+	
+	return [[[NSString alloc] initWithBytes:buf length:dest - buf encoding:NSASCIIStringEncoding] autorelease];
+}
+
 + (NSString*)bundleString:(NSString*)key
 {
 	return [[[NSBundle mainBundle] infoDictionary] objectForKey:key];
@@ -499,7 +612,12 @@ BOOL isUnicharDigit(unichar c)
 
 - (NSString*)getToken
 {
-	NSRange r = [self rangeOfCharacterFromSet:[NSCharacterSet characterSetWithCharactersInString:@" "]];
+	static NSCharacterSet* spaceSet = nil;
+	if (!spaceSet) {
+		spaceSet = [[NSCharacterSet characterSetWithCharactersInString:@" "] retain];
+	}
+	
+	NSRange r = [self rangeOfCharacterFromSet:spaceSet];
 	if (r.location != NSNotFound) {
 		NSString* result = [self substringToIndex:r.location];
 		int len = [self length];
@@ -509,6 +627,63 @@ BOOL isUnicharDigit(unichar c)
 		}
 		[self deleteCharactersInRange:NSMakeRange(0, pos)];
 		return result;
+	}
+	
+	NSString* result = [[self copy] autorelease];
+	[self setString:@""];
+	return result;
+}
+
+- (NSString*)getIgnoreToken
+{
+	BOOL useAnchor = NO;
+	UniChar anchor;
+	BOOL escaped = NO;
+	
+	int len = [self length];
+	for (int i=0; i<len; ++i) {
+		UniChar c = [self characterAtIndex:i];
+		
+		if (i == 0) {
+			if (c == '/') {
+				useAnchor = YES;
+				anchor = '/';
+				continue;
+			}
+			else if (c == '"') {
+				useAnchor = YES;
+				anchor = '"';
+				continue;
+			}
+		}
+		
+		if (escaped) {
+			escaped = NO;
+		}
+		else if (c == '\\') {
+			escaped = YES;
+		}
+		else if (useAnchor && c == anchor || !useAnchor && c == ' ') {
+			if (useAnchor) {
+				++i;
+			}
+			NSString* result = [self substringToIndex:i];
+			
+			int right;
+			for (right=i+1; right<len; ++right) {
+				UniChar c = [self characterAtIndex:right];
+				if (c != ' ') {
+					break;
+				}
+			}
+			
+			if (len <= right) {
+				right = len;
+			}
+			
+			[self deleteCharactersInRange:NSMakeRange(0, right)];
+			return result;
+		}
 	}
 	
 	NSString* result = [[self copy] autorelease];

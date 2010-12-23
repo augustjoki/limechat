@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "IRCClient.h"
 #import "IRC.h"
@@ -7,7 +7,7 @@
 #import "IRCMessage.h"
 #import "Preferences.h"
 #import "WhoisDialog.h"
-#import "Regex.h"
+#import "OnigRegexp.h"
 #import "SoundPlayer.h"
 #import "TimerCommand.h"
 #import "NSStringHelper.h"
@@ -23,6 +23,7 @@
 #define QUIT_INTERVAL		5
 #define RECONNECT_INTERVAL	20
 #define RETRY_INTERVAL		240
+#define NICKSERV_INTERVAL	5
 
 #define CTCP_MIN_INTERVAL	5
 
@@ -81,6 +82,8 @@ static NSDateFormatter* dateTimeFormatter = nil;
 - (WhoisDialog*)createWhoisDialogWithNick:(NSString*)nick username:(NSString*)username address:(NSString*)address realname:(NSString*)realname;
 - (WhoisDialog*)findWhoisDialog:(NSString*)nick;
 
+- (void)performAutoJoin;
+- (void)joinChannels:(NSArray*)chans;
 - (void)checkRejoin:(IRCChannel*)c;
 
 - (void)addCommandToCommandQueue:(TimerCommand*)m;
@@ -139,6 +142,11 @@ static NSDateFormatter* dateTimeFormatter = nil;
 		retryTimer.reqeat = NO;
 		retryTimer.selector = @selector(onRetryTimer:);
 		
+		autoJoinTimer = [Timer new];
+		autoJoinTimer.delegate = self;
+		autoJoinTimer.reqeat = NO;
+		autoJoinTimer.selector = @selector(onAutoJoinTimer:);
+		
 		commandQueueTimer = [Timer new];
 		commandQueueTimer.delegate = self;
 		commandQueueTimer.reqeat = NO;
@@ -178,6 +186,8 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	[reconnectTimer release];
 	[retryTimer stop];
 	[retryTimer release];
+	[autoJoinTimer stop];
+	[autoJoinTimer release];
 	[commandQueueTimer stop];
 	[commandQueueTimer release];
 	[commandQueue release];
@@ -361,6 +371,17 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	[world reloadTree];
 }
 
+- (BOOL)checkIgnore:(NSString*)text nick:(NSString*)nick channel:(NSString*)channel
+{
+	for (IgnoreItem* g in config.ignores) {
+		if ([g checkIgnore:text nick:nick channel:channel]) {
+			return YES;
+		}
+	}
+		
+	return NO;
+}
+
 #pragma mark -
 #pragma mark ListDialog
 
@@ -469,6 +490,22 @@ static NSDateFormatter* dateTimeFormatter = nil;
 {
 	[self disconnect];
 	[self connect:CONNECT_RETRY];
+}
+
+- (void)startAutoJoinTimer
+{
+	[autoJoinTimer stop];
+	[autoJoinTimer start:NICKSERV_INTERVAL];
+}
+
+- (void)stopAutoJoinTimer
+{
+	[autoJoinTimer stop];
+}
+
+- (void)onAutoJoinTimer:(id)sender
+{
+	[self performAutoJoin];
 }
 
 #pragma mark -
@@ -671,21 +708,23 @@ static NSDateFormatter* dateTimeFormatter = nil;
 {
 	NSString* escapedFileName = [fileName stringByReplacingOccurrencesOfString:@" " withString:@"_"];
 	
-	static Regex* addressPattern = nil;
+	static OnigRegexp* addressPattern = nil;
 	if (!addressPattern) {
-		addressPattern = [[Regex alloc] initWithString:@"^([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})$"];
+		NSString* pattern = @"([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})";
+		addressPattern = [[OnigRegexp compile:pattern] retain];
 	}
-	NSRange r = [addressPattern match:myAddress];
+	
+	OnigResult* result = [addressPattern match:myAddress];
 	
 	NSString* address;
-	if (r.location == NSNotFound) {
+	if (!result) {
 		address = myAddress;
 	}
 	else {
-		int w = [[myAddress substringWithRange:[addressPattern groupAt:1]] intValue];
-		int x = [[myAddress substringWithRange:[addressPattern groupAt:2]] intValue];
-		int y = [[myAddress substringWithRange:[addressPattern groupAt:3]] intValue];
-		int z = [[myAddress substringWithRange:[addressPattern groupAt:4]] intValue];
+		int w = [[myAddress substringWithRange:[result rangeAt:1]] intValue];
+		int x = [[myAddress substringWithRange:[result rangeAt:2]] intValue];
+		int y = [[myAddress substringWithRange:[result rangeAt:3]] intValue];
+		int z = [[myAddress substringWithRange:[result rangeAt:4]] intValue];
 		
 		unsigned long long a = 0;
 		a |= w; a <<= 8;
@@ -754,6 +793,21 @@ static NSDateFormatter* dateTimeFormatter = nil;
 			[self send:JOIN, target, pass, nil];
 		}
 	}
+}
+
+- (void)performAutoJoin
+{
+	registeringToNickServ = NO;
+	[self stopAutoJoinTimer];
+
+	NSMutableArray* ary = [NSMutableArray array];
+	for (IRCChannel* c in channels) {
+		if (c.isChannel && c.config.autoJoin) {
+			[ary addObject:c];
+		}
+	}
+	
+	[self joinChannels:ary];
 }
 
 - (void)joinChannels:(NSArray*)chans
@@ -952,28 +1006,37 @@ static NSDateFormatter* dateTimeFormatter = nil;
 		if ([command isEqualToString:PRIVMSG]) {
 			NSString* recipientNick = nil;
 			
-			static Regex* headPattern = nil;
-			static Regex* tailPattern = nil;
-			static Regex* twitterPattern = nil;
+			static OnigRegexp* headPattern = nil;
+			static OnigRegexp* tailPattern = nil;
+			static OnigRegexp* twitterPattern = nil;
 			
 			if (!headPattern) {
-				headPattern = [[Regex alloc] initWithString:@"^([^ :]+): "];
+				headPattern = [[OnigRegexp compile:@"^([^\\s:]+):\\s?"] retain];
 			}
 			if (!tailPattern) {
-				tailPattern = [[Regex alloc] initWithString:@"[>＞] ?([^ ]+)$"];
+				tailPattern = [[OnigRegexp compile:@"[>＞]\\s?([^\\s]+)$"] retain];
 			}
 			if (!twitterPattern) {
-				twitterPattern = [[Regex alloc] initWithString:@"^@([0-9a-zA-Z_]+) "];
+				twitterPattern = [[OnigRegexp compile:@"^@([0-9a-zA-Z_]+)\\s"] retain];
 			}
 			
-			if ([headPattern match:line].location != NSNotFound) {
-				recipientNick = [line substringWithRange:[headPattern groupAt:1]];
+			OnigResult* result;
+			
+			result = [headPattern search:line];
+			if (result) {
+				recipientNick = [line substringWithRange:[result rangeAt:1]];
 			}
-			else if ([tailPattern match:line].location != NSNotFound) {
-				recipientNick = [line substringWithRange:[tailPattern groupAt:1]];
-			}
-			else if ([twitterPattern match:line].location != NSNotFound) {
-				recipientNick = [line substringWithRange:[twitterPattern groupAt:1]];
+			else {
+				result = [tailPattern search:line];
+				if (result) {
+					recipientNick = [line substringWithRange:[result rangeAt:1]];
+				}
+				else {
+					result = [twitterPattern search:line];
+					if (result) {
+						recipientNick = [line substringWithRange:[result rangeAt:1]];
+					}
+				}
 			}
 			
 			if (recipientNick) {
@@ -1150,6 +1213,98 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	}
 	else if ([cmd isEqualToString:T]) {
 		cmd = TOPIC;
+	}
+	else if ([cmd isEqualToString:IGNORE] || [cmd isEqualToString:UNIGNORE]) {
+		if (!s.length) {
+			[world.menuController showServerPropertyDialog:self ignore:YES];
+			return YES;
+		}
+		
+		BOOL useNick = NO;
+		BOOL useText = NO;
+		
+		if ([s hasPrefix:@"-"]) {
+			NSString* options = [s getToken];
+			useNick = [options contains:@"n"];
+			useText = [options contains:@"m"];
+		}
+
+		if (!useNick && !useText) {
+			useNick = YES;
+		}
+		
+		NSString* nick = nil;
+		NSString* text = nil;
+		BOOL useRegexForNick = NO;
+		BOOL useRegexForText = NO;
+		NSMutableArray* chnames = [NSMutableArray array];
+		
+		if (useNick) {
+			nick = [s getIgnoreToken];
+			if (nick.length > 2) {
+				if ([nick hasPrefix:@"/"] && [nick hasSuffix:@"/"]) {
+					useRegexForNick = YES;
+					nick = [nick substringWithRange:NSMakeRange(1, nick.length-2)];
+				}
+			}
+		}
+		
+		if (useText) {
+			text = [s getIgnoreToken];
+			if (text.length) {
+				if ([text hasPrefix:@"/"] && [text hasSuffix:@"/"]) {
+					useRegexForText = YES;
+					text = [text substringWithRange:NSMakeRange(1, text.length-2)];
+				}
+				else if ([text hasPrefix:@"\""] && [text hasSuffix:@"\""]) {
+					text = [text substringWithRange:NSMakeRange(1, text.length-2)];
+				}
+			}
+		}
+		
+		while (s.length) {
+			NSString* chname = [s getToken];
+			if (chname.length) {
+				[chnames addObject:chname];
+			}
+		}
+		
+		IgnoreItem* g = [[IgnoreItem new] autorelease];
+		g.nick = nick;
+		g.text = text;
+		g.useRegexForNick = useRegexForNick;
+		g.useRegexForText = useRegexForText;
+		g.channels = chnames;
+		
+		if (g.isValid) {
+			if ([cmd isEqualToString:IGNORE]) {
+				BOOL found = NO;
+				for (IgnoreItem* e in config.ignores) {
+					if ([g isEqual:e]) {
+						found = YES;
+						break;
+					}
+				}
+				
+				if (!found) {
+					[config.ignores addObject:g];
+					[world save];
+				}
+			}
+			else {
+				NSMutableArray* ignores = config.ignores;
+				for (int i=ignores.count-1; i>=0; --i) {
+					IgnoreItem* e = [ignores objectAtIndex:i];
+					if ([g isEqual:e]) {
+						[ignores removeObjectAtIndex:i];
+						[world save];
+						break;
+					}
+				}
+			}
+		}
+		
+		return YES;
 	}
 	else if ([cmd isEqualToString:RAW] || [cmd isEqualToString:QUOTE]) {
 		[self sendLine:s];
@@ -1386,7 +1541,7 @@ static NSDateFormatter* dateTimeFormatter = nil;
 				t = [NSString stringWithFormat:@"\x01%@ %@\x01", ACTION, t];
 			}
 			
-			[self send:localCmd, [targets componentsJoinedByString:@","], t, nil];
+			[self send:localCmd, [targetsResult componentsJoinedByString:@","], t, nil];
 		}
 	}
 	else if ([cmd isEqualToString:CTCP]) {
@@ -1817,18 +1972,18 @@ static NSDateFormatter* dateTimeFormatter = nil;
 		s = [s stringByReplacingOccurrencesOfString:@"%@" withString:[NSString stringWithFormat:@"%c", mark]];
 	}
 	
-	static Regex* nickPattern = nil;
+	static OnigRegexp* nickPattern = nil;
 	if (!nickPattern) {
-		nickPattern = [[Regex alloc] initWithString:@"%(-?\\d+)?n"];
+		nickPattern = [[OnigRegexp compile:@"%(-?\\d+)?n"] retain];
 	}
 	
-	NSRange r;
-	
 	while (1) {
-		r = [nickPattern match:s];
-		if (r.location == NSNotFound) break;
+		OnigResult* result = [nickPattern search:s];
+		if (!result) break;
 		
-		NSRange numRange = [nickPattern groupAt:1];
+		NSRange r = result.bodyRange;
+		NSRange numRange = [result rangeAt:1];
+		
 		if (numRange.location != NSNotFound && numRange.length > 0) {
 			NSString* numStr = [s substringWithRange:numRange];
 			int n = [numStr intValue];
@@ -2247,6 +2402,10 @@ static NSDateFormatter* dateTimeFormatter = nil;
 		target = [target substringFromIndex:1];
 	}
 	
+	if ([self checkIgnore:text nick:nick channel:target]) {
+		return;
+	}
+	
 	if (target.isChannelName) {
 		// channel
 		IRCChannel* c = [self findChannel:target];
@@ -2301,6 +2460,23 @@ static NSDateFormatter* dateTimeFormatter = nil;
 			BOOL keyword = [self printBoth:c type:type nick:nick text:text identified:identified];
 			
 			if (type == LINE_TYPE_NOTICE) {
+				if ([nick isEqualNoCase:@"NickServ"]) {
+					if (registeringToNickServ) {
+						if ([text hasPrefix:@"You are now identified for "]
+							|| [text hasPrefix:@"Invalid password for "]
+							|| [text hasSuffix:@" is not a registered nickname."]) {
+							[self performAutoJoin];
+						}
+					}
+					else {
+						if ([text hasPrefix:@"This nickname is registered."]) {
+							if (config.nickPassword.length) {
+								[self send:PRIVMSG, @"NickServ", [NSString stringWithFormat:@"IDENTIFY %@", config.nickPassword], nil];
+							}
+						}
+					}
+				}
+				
 				[self notifyText:GROWL_TALK_NOTICE target:(c ?: (id)target) nick:nick text:text];
 				[SoundPlayer play:[Preferences soundForEvent:GROWL_TALK_NOTICE]];
 			}
@@ -2334,6 +2510,10 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	NSString* nick = m.sender.nick;
 	NSMutableString* s = [[text mutableCopy] autorelease];
 	NSString* command = [[s getToken] uppercaseString];
+	
+	if ([self checkIgnore:nil nick:nick channel:nil]) {
+		return;
+	}
 	
 	if ([command isEqualToString:DCC]) {
 		NSString* subCommand = [[s getToken] uppercaseString];
@@ -2395,7 +2575,7 @@ static NSDateFormatter* dateTimeFormatter = nil;
 			[self sendCTCPReply:nick command:command text:config.userInfo ?: @""];
 		}
 		else if ([command isEqualToString:CLIENTINFO]) {
-			[self sendCTCPReply:nick command:command text:_(@"CTCPClientInfo")];
+			[self sendCTCPReply:nick command:command text:NSLocalizedString(@"CTCPClientInfo", nil)];
 		}
 	}
 }
@@ -2405,6 +2585,10 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	NSString* nick = m.sender.nick;
 	NSMutableString* s = [[text mutableCopy] autorelease];
 	NSString* command = [[s getToken] uppercaseString];
+	
+	if ([self checkIgnore:nil nick:nick channel:nil]) {
+		return;
+	}
 	
 	if ([command isEqualToString:PING]) {
 		double time = [s doubleValue];
@@ -2785,8 +2969,23 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	NSString* nick = m.sender.nick;
 	NSString* chname = [m paramAt:1];
 	
+	if ([self checkIgnore:nil nick:nick channel:chname]) {
+		return;
+	}
+	
 	NSString* text = [NSString stringWithFormat:@"%@ has invited you to %@", nick, chname];
 	[self printBoth:self type:LINE_TYPE_INVITE text:text];
+	
+	if ([Preferences autoJoinOnInvited]) {
+		IRCChannel* c = [self findChannel:chname];
+		if (!c) {
+			IRCChannelConfig* seed = [[IRCChannelConfig new] autorelease];
+			seed.name = chname;
+			c = [world createChannel:seed client:self reload:YES adjust:YES];
+			[world save];
+			[self joinChannel:c];
+		}
+	}
 
 	[self notifyEvent:GROWL_INVITED target:nil nick:nick text:chname];
 	[SoundPlayer play:[Preferences soundForEvent:GROWL_INVITED]];
@@ -2811,6 +3010,7 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	
 	[self startPongTimer];
 	[self stopRetryTimer];
+	[self stopAutoJoinTimer];
 	
 	[world expandClient:self];
 	
@@ -2818,20 +3018,23 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	conn.loggedIn = YES;
 	tryingNickNumber = -1;
 	
+	registeringToNickServ = NO;
+	inWhois = NO;
+	inList = NO;
+	
 	[serverHostname release];
 	serverHostname = [m.sender.raw retain];
 	[myNick release];
 	myNick = [[m paramAt:0] retain];
-	
-	inWhois = NO;
-	inList = NO;
 	
 	[self printSystem:self text:@"Logged in"];
 	
 	[self notifyEvent:GROWL_LOGIN];
 	[SoundPlayer play:[Preferences soundForEvent:GROWL_LOGIN]];
 	
-	if (config.nickPassword.length > 0) {
+	if (config.nickPassword.length) {
+		registeringToNickServ = YES;
+		[self startAutoJoinTimer];
 		[self send:PRIVMSG, @"NickServ", [NSString stringWithFormat:@"IDENTIFY %@", config.nickPassword], nil];
 	}
 	
@@ -2860,14 +3063,9 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	[self updateClientTitle];
 	[self reloadTree];
 	
-	NSMutableArray* ary = [NSMutableArray array];
-	for (IRCChannel* c in channels) {
-		if (c.isChannel && c.config.autoJoin) {
-			[ary addObject:c];
-		}
+	if (!registeringToNickServ) {
+		[self performAutoJoin];
 	}
-	
-	[self joinChannels:ary];
 }
 
 - (void)receiveNumericReply:(IRCMessage*)m
@@ -3214,7 +3412,8 @@ static NSDateFormatter* dateTimeFormatter = nil;
 					// set mode if creator
 					NSString* m = c.config.mode;
 					if (m.length) {
-						[self send:MODE, chname, m, nil];
+						NSString* line = [NSString stringWithFormat:@"%@ %@ %@", MODE, chname, m];
+						[self sendLine:line];
 					}
 					c.isModeInit = YES;
 				}
@@ -3289,8 +3488,13 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	switch (n) {
 		case 401:	// ERR_NOSUCHNICK
 		{
-			NSString* chname = [m paramAt:1];
-			IRCChannel* c = [self findChannel:chname];
+			NSString* nick = [m paramAt:1];
+			
+			if (registeringToNickServ && [nick isEqualNoCase:@"NickServ"]) {
+				[self performAutoJoin];
+			}
+			
+			IRCChannel* c = [self findChannel:nick];
 			if (c && c.isActive) {
 				[self printErrorReply:m channel:c];
 				return;
@@ -3421,19 +3625,24 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	isConnected = reconnectEnabled = YES;
 	encoding = config.encoding;
 	
-	[inputNick autorelease];
+	if (!inputNick.length) {
+		[inputNick autorelease];
+		inputNick = [config.nick retain];
+	}
 	[sentNick autorelease];
 	[myNick autorelease];
-	inputNick = [config.nick retain];
-	sentNick = [config.nick retain];
-	myNick = [config.nick retain];
+	sentNick = [inputNick retain];
+	myNick = [inputNick retain];
 	
 	[isupport reset];
 	[myMode clear];
 	
 	int modeParam = config.invisibleMode ? 8 : 0;
-	NSString* user = config.username ?: config.nick;
-	NSString* realName = config.realName ?: config.nick;
+	NSString* user = config.username;
+	NSString* realName = config.realName;
+	
+	if (!user.length) user = config.nick;
+	if (!realName.length) realName = config.nick;
 	
 	if (config.password.length) [self send:PASS, config.password, nil];
 	[self send:NICK, sentNick, nil];
@@ -3465,8 +3674,20 @@ static NSDateFormatter* dateTimeFormatter = nil;
 	
 	NSString* s = [[[NSString alloc] initWithData:data encoding:enc] autorelease];
 	if (!s) {
-		s = [[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease];
-		if (!s) return;
+		if (encoding == NSISO2022JPStringEncoding) {
+			// avoid incomplete sequence
+			NSMutableData* d = [[data mutableCopy] autorelease];
+			while (d.length > 1) {
+				[d setLength:d.length - 1];
+				s = [[[NSString alloc] initWithData:d encoding:enc] autorelease];
+				if (s) break;
+			}
+		}
+		
+		if (!s) {
+			s = [[[NSString alloc] initWithData:data encoding:NSASCIIStringEncoding] autorelease];
+			if (!s) return;
+		}
 	}
 	
 	IRCMessage* m = [[[IRCMessage alloc] initWithLine:s] autorelease];

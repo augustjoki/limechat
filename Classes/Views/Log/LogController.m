@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "LogController.h"
 #import "Preferences.h"
@@ -7,8 +7,9 @@
 #import "IRCWorld.h"
 #import "IRCClient.h"
 #import "IRCChannel.h"
-#import "Regex.h"
+#import "OnigRegexp.h"
 #import "NSLocaleHelper.h"
+#import "ImageURLParser.h"
 
 
 #define BOTTOM_EPSILON	20
@@ -60,11 +61,13 @@
 
 - (void)dealloc
 {
+	[NSObject cancelPreviousPerformRequestsWithTarget:self];
 	[view release];
 	[policy release];
 	[sink release];
 	[scroller release];
 	[js release];
+	[autoScroller release];
 
 	[menu release];
 	[urlMenu release];
@@ -137,6 +140,14 @@
 	[[view mainFrame] loadHTMLString:[self initialDocument] baseURL:theme.log.baseUrl];
 }
 
+- (void)notifyDidBecomeVisible
+{
+	if (!becameVisible) {
+		becameVisible = YES;
+		[self moveToBottom];
+	}
+}
+
 - (void)moveToTop
 {
 	if (!loaded) return;
@@ -148,6 +159,8 @@
 
 - (void)moveToBottom
 {
+	movingToBottom = NO;
+	
 	if (!loaded) return;
 	DOMHTMLDocument* doc = (DOMHTMLDocument*)[[view mainFrame] DOMDocument];
 	if (!doc) return;
@@ -158,6 +171,8 @@
 - (BOOL)viewingBottom
 {
 	if (!loaded) return YES;
+	if (movingToBottom) return YES;
+	
 	DOMHTMLDocument* doc = (DOMHTMLDocument*)[[view mainFrame] DOMDocument];
 	if (!doc) return YES;
 	DOMHTMLElement* body = [doc body];
@@ -178,9 +193,23 @@
 
 - (void)restorePosition
 {
+	/*
 	if (bottom) {
 		[self moveToBottom];
 	}
+	 */
+}
+
+- (void)restorePositionWithDelay
+{
+	/*
+	if (bottom) {
+		if (!movingToBottom) {
+			movingToBottom = YES;
+			[self performSelector:@selector(moveToBottom) withObject:nil afterDelay:0];
+		}
+	}
+	 */
 }
 
 - (void)mark
@@ -288,43 +317,52 @@
 	DOMHTMLDocument* doc = (DOMHTMLDocument*)[[view mainFrame] DOMDocument];
 	if (!doc) return;
 	DOMHTMLElement* body = [doc body];
+	DOMNodeList* nodeList = [body childNodes];
 	
-	// remeber scroll top
-	int top = [[body valueForKey:@"scrollTop"] intValue];
+	BOOL viewingBottom = [self viewingBottom];
 	
 	// calculate scroll delta
-	DOMNodeList* nodeList = [body childNodes];
+	int top = 0;
 	int delta = 0;
-	
-	if (n < [nodeList length]) {
-		DOMHTMLElement* firstNode = (DOMHTMLElement*)[nodeList item:0];
-		DOMHTMLElement* node = (DOMHTMLElement*)[nodeList item:n];
-		if ([node isKindOfClass:[DOMHTMLHRElement class]]) {
-			DOMHTMLElement* nextSibling = (DOMHTMLElement*)[node nextSibling];
-			if (nextSibling) {
-				node = nextSibling;
+	if (!viewingBottom) {
+		// remeber scroll top
+		top = [[body valueForKey:@"scrollTop"] intValue];
+		
+		if (n < [nodeList length]) {
+			DOMHTMLElement* firstNode = (DOMHTMLElement*)[nodeList item:0];
+			DOMHTMLElement* node = (DOMHTMLElement*)[nodeList item:n];
+			if ([node isKindOfClass:[DOMHTMLHRElement class]]) {
+				DOMHTMLElement* nextSibling = (DOMHTMLElement*)[node nextSibling];
+				if (nextSibling) {
+					node = nextSibling;
+				}
 			}
-		}
-		if (node) {
-			delta = [[node valueForKey:@"offsetTop"] intValue] - [[firstNode valueForKey:@"offsetTop"] intValue];
+			if (node) {
+				delta = [[node valueForKey:@"offsetTop"] intValue] - [[firstNode valueForKey:@"offsetTop"] intValue];
+			}
 		}
 	}
 	
 	// remove lines
+	//
+	// note:
+	//   removing from the tail is around 6x faster
+	//
 	for (int i=n-1; i>=0; --i) {
 		DOMHTMLElement* node = (DOMHTMLElement*)[nodeList item:i];
 		[body removeChild:node];
 	}
 	
-	// scroll back by delta
-	if (delta > 0) {
-		[body setValue:[NSNumber numberWithInt:top - delta] forKey:@"scrollTop"];
+	if (!viewingBottom) {
+		// scroll back by delta
+		if (delta > 0) {
+			[body setValue:[NSNumber numberWithInt:top - delta] forKey:@"scrollTop"];
+		}
 	}
 	
-	// updating highlight line numbers
-	
+	// updating highlighted line numbers
 	if (highlightedLineNumbers.count > 0) {
-		nodeList = [body childNodes];
+		DOMNodeList* nodeList = [body childNodes];
 		if (nodeList.length) {
 			DOMHTMLElement* firstNode = (DOMHTMLElement*)[nodeList item:0];
 			if (firstNode) {
@@ -351,9 +389,7 @@
 	count -= n;
 	if (count < 0) count = 0;
 	
-	if (scroller) {
-		[scroller setNeedsDisplay];
-	}
+	[scroller setNeedsDisplay];
 }
 
 - (void)setNeedsLimitNumberOfLines
@@ -367,12 +403,15 @@
 - (BOOL)print:(LogLine*)line
 {
 	BOOL key = NO;
+	NSArray* urlRanges = nil;
+	
 	NSString* body = [LogRenderer renderBody:line.body
 									keywords:line.keywords
 								excludeWords:line.excludeWords
 						  highlightWholeLine:[Preferences keywordWholeLine]
 							  exactWordMatch:[Preferences keywordMatchingMethod] == KEYWORD_MATCH_EXACT
-								 highlighted:&key];
+								 highlighted:&key
+								   URLRanges:&urlRanges];
 	
 	if (!loaded) {
 		[lines addObject:line];
@@ -399,28 +438,26 @@
 	BOOL isText = type == LINE_TYPE_PRIVMSG || type == LINE_TYPE_NOTICE || type == LINE_TYPE_ACTION;
 	BOOL showInlineImage = NO;
 
-	if (isText && !console && [Preferences showInlineImages]) {
+	[s appendFormat:@"<span class=\"message\" type=\"%@\">%@", lineTypeString, body];
+	if (isText && !console && urlRanges.count && [Preferences showInlineImages]) {
 		//
 		// expand image URLs
 		//
-		static Regex* imageRegex = nil;
-		if (!imageRegex) {
-			NSString* pattern = @"(?<![a-zA-Z0-9_])https?://[a-z0-9.,_\\-+/:;%$~]+\\.(jpg|jpeg|png|gif)";
-			imageRegex = [[Regex alloc] initWithString:pattern options:UREGEX_CASE_INSENSITIVE];
-		}
+		NSString* imageUrl = nil;
 		
-		NSRange r = [imageRegex match:body];
-		if (r.location != NSNotFound) {
-			showInlineImage = YES;
-			NSString* url = [body substringWithRange:r];
-			[s appendFormat:@"<span class=\"message\" type=\"%@\">%@<br/>", lineTypeString, body];
-			[s appendFormat:@"<a href=\"%@\"><img src=\"%@\" class=\"inlineimage\"/></a></span>", url, url];
+		for (NSValue* rangeValue in urlRanges) {
+			NSString* url = [line.body substringWithRange:[rangeValue rangeValue]];
+			imageUrl = [ImageURLParser imageURLForURL:url];
+			if (imageUrl) {
+				if (!showInlineImage) {
+					[s appendString:@"<br/>"];
+				}
+				showInlineImage = YES;
+				[s appendFormat:@"<a href=\"%@\"><img src=\"%@\" class=\"inlineimage\"/></a>", url, imageUrl];
+			}
 		}
 	}
-	
-	if (!showInlineImage) {
-		[s appendFormat:@"<span class=\"message\" type=\"%@\">%@</span>", lineTypeString, body];
-	}
+	[s appendString:@"</span>"];
 
 	NSString* klass = isText ? @"line text" : @"line event";
 	
@@ -480,7 +517,7 @@
 		[scroller setNeedsDisplay];
 	}
 	
-	[self restorePosition];
+	[self restorePositionWithDelay];
 }
 
 - (NSString*)initialDocument
@@ -564,8 +601,8 @@
 		@"body {margin:0;padding:0}"
 		@"img {border:1px solid #aaa;vertical-align:top;}"
 		@"object {vertical-align:top;}"
-		@"hr {margin: 0.5em 2em;}"
-		@".line { margin: 0 -4px; padding: 0 4px 1px 4px; }"
+		@"hr {margin:0.5em 2em;}"
+		@".line {margin:0 -4px; padding:0 4px 1px 4px; clear:both;}"
 		@".line[alternate=even] {}"
 		@".line[alternate=odd] {}"
 		@".line[type=action] .sender:before {"
@@ -574,9 +611,7 @@
 		@"}"
 	 
 		@".inlineimage {"
-		@"margin-top: 10px;"
-		@"margin-bottom: 15px;"
-		@"margin-left: 40px;"
+		@"margin: 10px 0 15px 40px;"
 		@"max-width: 200px;"
 		@"max-height: 150px;"
 		@"-webkit-box-shadow: 2px 2px 2px #888;"
@@ -687,7 +722,8 @@
 		
 		scroller = [[MarkedScroller alloc] initWithFrame:NSMakeRect(-16, -64, 16, 64)];
 		scroller.dataSource = self;
-		[scroller setFloatValue:[old floatValue] knobProportion:[old knobProportion]];
+		[scroller setFloatValue:[old floatValue]];
+		[scroller setKnobProportion:[old knobProportion]];
 		[scrollView setVerticalScroller:scroller];
 	}
 }
@@ -707,6 +743,11 @@
 	loaded = YES;
 	loadingImages = 0;
 	[self setUpScroller];
+	
+	if (!autoScroller) {
+		autoScroller = [WebViewAutoScroll new];
+	}
+	autoScroller.webFrame = view.mainFrame.frameView;
 	
 	if (html) {
 		DOMHTMLDocument* doc = (DOMHTMLDocument*)[[view mainFrame] DOMDocument];
@@ -800,8 +841,10 @@
 	
 	[js evaluateWebScript:s];
 	
-	// @@@
 	// evaluate theme js
+	if (theme.js.content.length) {
+		[js evaluateWebScript:theme.js.content];
+	}
 }
 
 - (id)webView:(WebView *)sender identifierForInitialRequest:(NSURLRequest *)request fromDataSource:(WebDataSource *)dataSource

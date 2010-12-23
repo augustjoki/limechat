@@ -234,7 +234,7 @@ table#shortcutkeys td
 	<h3>Snow Leopard / Leopard</h3>
 	<div class="section">
 		<ol>
-			<li>Download <a href="http://cloud.github.com/downloads/psychs/limechat/LimeChat_2.7.tbz">LimeChat_2.7.tbz</a>.</li>
+			<li>Download <a href="http://cloud.github.com/downloads/psychs/limechat/LimeChat_2.16.tbz">LimeChat_2.16.tbz</a>.</li>
 			<li>Extract the downloaded package, and copy LimeChat.app to your Applications folder.</li>
 		</ol>
 	</div>
@@ -266,7 +266,7 @@ table#shortcutkeys td
 <h2>For other platforms</h2>
 <div class="section">
 	<ul>
-		<li><a href="http://limechat.net/iphone/">LimeChat for iPhone</a></li>
+		<li><a href="http://limechat.net/iphone/">LimeChat for iPhone and iPad</a></li>
 	</ul>
 </div>
 
@@ -328,7 +328,7 @@ table#shortcutkeys td
 		<li><a href="http://limechat.net/psychs/">Satoshi Nakagawa</a></li>
 	</ul>
 	<p>
-		I'll be glad if you would like to donate. Your donation would help further development.
+		I'll be glad if you would like to donate. Your donation will help further development.
 	</p>
 	<div class="donation">
 		<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
@@ -346,6 +346,98 @@ table#shortcutkeys td
 		This change log is also available in <a href="rss.xml">RSS</a>.
 	</p>
 	<dl>
+
+    <dt id="v2.16">2.16 (2010.12.05)</dt>
+    <dd>
+  	  <ul>
+	      <li>Added override input text font option.</li>
+	      <li>Show all thumbnails for multiple image links in a message.</li>
+	      <li>Supported inline images on plixi.com and puu.sh.</li>
+	      <li>Follow the changes of gist.</li>
+	      <li>Updated server list.</li>
+	      <li>Fixed a bug in /omsg and /onotice commands.</li>
+	      <li>KOI8-R and KOI8-U support.</li>
+      </ul>
+    </dd>
+
+    <dt id="v2.15">2.15 (2010.06.23)</dt>
+    <dd>
+  	  <ul>
+        <li>Join a channel automatically when invited option.</li>
+        <li>Handle incomplete ISO-2022-JP sequences.</li>
+        <li>Cancel reconnection when disconnect from menu.</li>
+        <li>Fixed minor bugs.</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.14">2.14 (2010.05.19)</dt>
+    <dd>
+  	  <ul>
+        <li>Inline image support for imgur.com and twitvid.</li>
+        <li>Always accept drag and drop text on the input box.</li>
+        <li>Rearrange selection when moved tree items.</li>
+        <li>Fixed a bug where setting mode failed when the mode contains spaces.</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.13">2.13 (2010.05.11)</dt>
+    <dd>
+  	  <ul>
+        <li>Improved command completion.</li>
+        <li>Use the current nick when reconnected.</li>
+        <li>Use nickname when provided empty login name or real name.</li>
+        <li>Fixed a bug where paste dialog didn't show up after closed on ESC previously.</li>
+        <li>Exclude non ASCII characters from URLs.</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.12">2.12 (2010.05.07)</dt>
+    <dd>
+  	  <ul>
+        <li>64bit support.</li>
+        <li>Added ignore feature.</li>
+        <li>Recognize YouTube URLs for inline images.</li>
+      </ul>
+    </dd>
+	  
+    <dt id="v2.11">2.11 (2010.05.03)</dt>
+    <dd>
+  	  <ul>
+        <li>Fixed a bug, fallback encoding wasn't saved correctly.</li>
+        <li>Minor bugs fixes.</li>
+      </ul>
+    </dd>
+	  
+    <dt id="v2.10">2.10 (2010.04.28)</dt>
+    <dd>
+  	  <ul>
+    	  <li>Delay auto join until NickServ registration is completed.</li>
+        <li>Register to NickServ when changed nick.</li>
+        <li>ISO-8859-11 (Thai) support.</li>
+        <li>Fixed minor bugs.</li>
+      </ul>
+    </dd>
+	  
+    <dt id="v2.9">2.9 (2010.04.26)</dt>
+    <dd>
+  	  <ul>
+        <li>Improved performance.</li>
+        <li>Image services support. (twitpic, tweetphoto, yfrog, twitgoo and img.ly)</li>
+        <li>Changed the way to keep scroller at bottom. Thanks to Allan.</li>
+        <li>Enabled custom javascript in theme.</li>
+        <li>Minor bug fixes.</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.8">2.8 (2010.04.23)</dt>
+    <dd>
+  	  <ul>
+        <li>Use Oniguruma instead of ICU regexp for stability.</li>
+        <li>Fixed the unstable scroller problem with larger fonts.</li>
+        <li>Avoid using the system socks proxy when socks is disabled in the system network preferences.</li>
+        <li>Fixed minor bugs.</li>
+      </ul>
+    </dd>
     
     <dt id="v2.7">2.7 (2010.04.20)</dt>
     <dd>
@@ -418,43 +510,6 @@ table#shortcutkeys td
 	    <ul>
         <li>Rewrote in pure Objective-C to avoid the RubyCocoa's crashing bugs.</li>
         <li>Auto op is temporarily disabled for a while.</li>
-      </ul>
-    </dd>
-    
-	  <dt id="v1.7">1.7 (2010.03.25)</dt>
-    <dd>
-	    <ul>
-          <li>Improved around inline images.</li>
-          <li>Added Go To Mark menu.</li>
-          <li>Fixed a bug, Sparkle didn't work unintentionally.</li>
-          <li>Disabled sent command log.</li>
-          <li>Supported Cmd+[ / Cmd+] on non-English keyboards.</li>
-        </ul>
-    </dd>
-    
-    <dt id="v1.6">1.6 (2010.03.24)</dt>
-    <dd>
-      <ul>
-        <li>Added open browser in background option.</li>
-        <li>Show image links in inline option.</li>
-        <li>Added shortcut keys, Cmd+[ / Cmd+] to move up / down channels.</li>
-        <li>Allow itms: scheme for URLs.</li>
-    	</ul>
-    </dd>
-
-    <dt id="v1.5">1.5 (2010.02.03)</dt>
-    <dd>
-      <ul>
-    	  <li>Added auto rejoin option.</li>
-      </ul>
-    </dd>
-
-    <dt id="v1.4">1.4 (2010.01.17)</dt>
-    <dd>
-      <ul>
-        <li>EUC-KR support</li>
-        <li>Migrate wide.ad.jp servers to irc.ircnet.ne.jp</li>
-        <li>Fixed minor bugs</li>
       </ul>
     </dd>
     

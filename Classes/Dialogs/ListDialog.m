@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "ListDialog.h"
 #import "Preferences.h"
@@ -7,7 +7,7 @@
 
 
 @interface ListDialog (Private)
-- (void)sortedInsert:(NSArray*)item;
+- (void)sortedInsert:(NSArray*)item inArray:(NSMutableArray*)ary;
 - (void)reloadTable;
 - (BOOL)loadWindowState;
 - (void)saveWindowState;
@@ -91,7 +91,20 @@
 - (void)addChannel:(NSString*)channel count:(int)count topic:(NSString*)topic
 {
 	NSArray* item = [NSArray arrayWithObjects:channel, [NSNumber numberWithInt:count], topic, nil];
-	[self sortedInsert:item];
+	
+	NSString* filter = [filterText stringValue];
+	if (filter.length) {
+		if (!filteredList) {
+			filteredList = [NSMutableArray new];
+		}
+		
+		if ([channel rangeOfString:filter options:NSCaseInsensitiveSearch].location != NSNotFound
+			|| [topic rangeOfString:filter options:NSCaseInsensitiveSearch].location != NSNotFound) {
+			[self sortedInsert:item inArray:filteredList];
+		}
+	}
+	
+	[self sortedInsert:item inArray:list];
 	[self reloadTable];
 }
 
@@ -130,12 +143,11 @@ static NSInteger compareItems(NSArray* self, NSArray* other, void* context)
 	[list sortUsingFunction:compareItems context:self];
 }
 
-- (void)sortedInsert:(NSArray*)item
+- (void)sortedInsert:(NSArray*)item inArray:(NSMutableArray*)ary
 {
 	const int THRESHOLD = 5;
 	int left = 0;
-	int right = list.count;
-	NSMutableArray* ary = list;
+	int right = ary.count;
 	
 	while (right - left > THRESHOLD) {
 		int pivot = (left + right) / 2;
@@ -174,16 +186,18 @@ static NSInteger compareItems(NSArray* self, NSArray* other, void* context)
 
 - (void)onJoin:(id)sender
 {
-	NSIndexSet* set = [table selectedRowIndexes];
-	NSUInteger i = [set firstIndex];
-	while (i != NSNotFound) {
-		NSArray* item = [list objectAtIndex:i];
-		
+	NSArray* ary = list;
+	NSString* filter = [filterText stringValue];
+	if (filter.length) {
+		ary = filteredList;
+	}
+	
+	NSIndexSet* indexes = [table selectedRowIndexes];
+	for (NSUInteger i=[indexes firstIndex]; i!=NSNotFound; i=[indexes indexGreaterThanIndex:i]) {
+		NSArray* item = [ary objectAtIndex:i];
 		if ([delegate respondsToSelector:@selector(listDialogOnJoin:channel:)]) {
 			[delegate listDialogOnJoin:self channel:[item objectAtIndex:0]];
 		}
-		
-		i = [set indexGreaterThanIndex:i];
 	}
 }
 

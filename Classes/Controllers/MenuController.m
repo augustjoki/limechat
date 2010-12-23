@@ -1,3 +1,6 @@
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
+
 #import "MenuController.h"
 #import <WebKit/WebKit.h>
 #import "Preferences.h"
@@ -5,9 +8,9 @@
 #import "IRCWorld.h"
 #import "IRCClient.h"
 #import "IRCChannel.h"
+#import "MemberListView.h"
 #import "ServerDialog.h"
 #import "ChannelDialog.h"
-#import "Regex.h"
 #import "URLOpener.h"
 #import "GTMNSString+URLArguments.h"
 #import "NSPasteboardHelper.h"
@@ -117,11 +120,11 @@
 			return KEY_WINDOW && u && c;
 		case 203:	// close window / close current panel
 			if (KEY_WINDOW) {
-				[closeWindowItem setTitle:_(@"CloseCurrentPanelMenuTitle")];
+				[closeWindowItem setTitle:NSLocalizedString(@"CloseCurrentPanelMenuTitle", nil)];
 				return u && c;
 			}
 			else {
-				[closeWindowItem setTitle:_(@"CloseWindowMenuTitle")];
+				[closeWindowItem setTitle:NSLocalizedString(@"CloseWindowMenuTitle", nil)];
 				return YES;
 			}
 		case 313:	// paste
@@ -230,7 +233,7 @@
 			return LOGIN_CHANTALK && [self checkSelectedMembers:item];
 		case 2005:	// invite
 		{
-			if (!LOGIN) return NO;
+			if (!LOGIN || ![self checkSelectedMembers:item]) return NO;
 			int count = 0;
 			for (IRCChannel* e in u.channels) {
 				if (e != c && e.isChannel) {
@@ -316,11 +319,9 @@
 		else {
 			NSMutableArray* ary = [NSMutableArray array];
 			NSIndexSet* indexes = [memberList selectedRowIndexes];
-			NSUInteger n = [indexes firstIndex];
-			while (n != NSNotFound) {
-				IRCUser* m = [c memberAtIndex:n];
+			for (NSUInteger i=[indexes firstIndex]; i!=NSNotFound; i=[indexes indexGreaterThanIndex:i]) {
+				IRCUser* m = [c memberAtIndex:i];
 				[ary addObject:m];
-				n = [indexes indexGreaterThanIndex:n];
 			}
 			return ary;
 		}
@@ -497,7 +498,6 @@
 			NSString* lastLine = [lines objectAtIndex:1];
 			multiLine = lastLine.length > 0;
 		}
-		
 		IRCChannel* c = world.selectedChannel;
 		
 		if (c && multiLine) {
@@ -665,6 +665,7 @@
 	IRCClient* u = world.selectedClient;
 	if (!u) return;
 	[u quit];
+	[u cancelReconnect];
 }
 
 - (void)onCancelReconnecting:(id)sender
@@ -717,7 +718,7 @@
 	d.config = [[IRCClientConfig new] autorelease];
 	d.uid = -1;
 	[serverDialogs addObject:d];
-	[d start];
+	[d startWithIgnoreTab:NO];
 }
 
 - (void)onCopyServer:(id)sender
@@ -749,9 +750,8 @@
 	[world save];
 }
 
-- (void)onServerProperties:(id)sender
+- (void)showServerPropertyDialog:(IRCClient*)u ignore:(BOOL)ignore
 {
-	IRCClient* u = world.selectedClient;
 	if (!u) return;
 	
 	if (u.propertyDialog) {
@@ -765,7 +765,12 @@
 	d.config = u.storedConfig;
 	d.uid = u.uid;
 	[serverDialogs addObject:d];
-	[d start];
+	[d startWithIgnoreTab:ignore];
+}
+
+- (void)onServerProperties:(id)sender
+{
+	[self showServerPropertyDialog:world.selectedClient ignore:NO];
 }
 
 - (void)serverDialogOnOK:(ServerDialog*)sender
@@ -993,12 +998,13 @@
 
 - (void)memberListDoubleClicked:(id)sender
 {
+	MemberListView* view = sender;
 	NSPoint pt = [window mouseLocationOutsideOfEventStream];
-	pt = [sender convertPoint:pt fromView:nil];
-	int n = [sender rowAtPoint:pt];
+	pt = [view convertPoint:pt fromView:nil];
+	int n = [view rowAtPoint:pt];
 	if (n >= 0) {
-		if ([[sender selectedRowIndexes] count] > 0) {
-			[sender select:n];
+		if ([[view selectedRowIndexes] count] > 0) {
+			[view selectItemAtIndex:n];
 		}
 		[self whoisSelectedMembers:nil deselect:NO];
 	}

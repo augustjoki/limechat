@@ -1,22 +1,10 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import <Cocoa/Cocoa.h>
 
 
 @interface DialogWindow : NSWindow
 {
-	id keyDelegate;
 }
-
-@property (nonatomic, assign) id keyDelegate;
-
-@end
-
-
-@interface NSObject (DialogWindowDelegate)
-- (void)dialogWindowEscape;
-- (void)dialogWindowEnter;
-- (void)dialogWindowMoveDown;
-- (void)dialogWindowMoveUp;
 @end

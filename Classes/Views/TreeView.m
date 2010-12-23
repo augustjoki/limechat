@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "TreeView.h"
 
@@ -13,7 +13,7 @@
 	return [[self selectedRowIndexes] count];
 }
 
-- (void)select:(int)index
+- (void)selectItemAtIndex:(int)index
 {
 	[self selectRowIndexes:[NSIndexSet indexSetWithIndex:index] byExtendingSelection:NO];
 	[self scrollRowToVisible:index];
@@ -24,7 +24,7 @@
 	NSPoint p = [self convertPoint:[e locationInWindow] fromView:nil];
 	int i = [self rowAtPoint:p];
 	if (i >= 0) {
-		[self select:i];
+		[self selectItemAtIndex:i];
 	}
 	return [self menu];
 }

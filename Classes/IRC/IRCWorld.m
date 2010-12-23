@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "IRCWorld.h"
 #import "IRCClient.h"
@@ -40,8 +40,6 @@
 @synthesize menuController;
 @synthesize dcc;
 @synthesize viewTheme;
-@synthesize serverMenu;
-@synthesize channelMenu;
 @synthesize treeMenu;
 @synthesize logMenu;
 @synthesize consoleMenu;
@@ -66,6 +64,8 @@
 - (void)dealloc
 {
 	[icon release];
+	[serverMenu release];
+	[channelMenu release];
 	[consoleLog release];
 	[dummyLog release];
 	[config release];
@@ -81,9 +81,11 @@
 {
 	consoleLog = [[self createLogWithClient:nil channel:nil console:YES] retain];
 	consoleBase.contentView = consoleLog.view;
+	[consoleLog notifyDidBecomeVisible];
 	
 	dummyLog = [[self createLogWithClient:nil channel:nil console:YES] retain];
 	logBase.contentView = dummyLog.view;
+	[dummyLog notifyDidBecomeVisible];
 	
 	config = [seed mutableCopy];
 	for (IRCClientConfig* e in config.clients) {
@@ -114,10 +116,10 @@
 		[tree expandItem:client];
 		int n = [tree rowForItem:client];
 		if (client.channels.count) ++n;
-		[tree select:n];
+		[tree selectItemAtIndex:n];
 	}
 	else if (clients.count > 0) {
-		[tree select:0];
+		[tree selectItemAtIndex:0];
 	}
 	
 	[self outlineViewSelectionDidChange:nil];
@@ -140,6 +142,20 @@
 	
 	[dic setObject:ary forKey:@"clients"];
 	return dic;
+}
+
+- (void)setServerMenuItem:(NSMenuItem*)item
+{
+	if (serverMenu) return;
+	
+	serverMenu = [[item submenu] copy];
+}
+
+- (void)setChannelMenuItem:(NSMenuItem*)item
+{
+	if (channelMenu) return;
+
+	channelMenu = [[item submenu] copy];
 }
 
 #pragma mark -
@@ -271,9 +287,9 @@
 
 - (void)adjustSelection
 {
-	int row = [tree selectedRow];
+	NSInteger row = [tree selectedRow];
 	if (0 <= row && selected && selected != [tree itemAtRow:row]) {
-		[tree select:[tree rowForItem:selected]];
+		[tree selectItemAtIndex:[tree rowForItem:selected]];
 		[self reloadTree];
 	}
 }
@@ -423,7 +439,7 @@
 - (void)updateClientTitle:(IRCClient*)client
 {
 	if (!client || !selected) return;
-	if (selected == client) {
+	if ([selected client] == client) {
 		[self updateTitle];
 	}
 }
@@ -484,7 +500,9 @@
 	if (!item) {
 		self.selected = nil;
 		
-		[logBase setContentView:dummyLog.view];
+		logBase.contentView = dummyLog.view;
+		[dummyLog notifyDidBecomeVisible];
+		
 		memberList.dataSource = nil;
 		[memberList reloadData];
 		tree.menu = treeMenu;
@@ -498,7 +516,7 @@
 	
 	int i = [tree rowForItem:item];
 	if (i < 0) return;
-	[tree select:i];
+	[tree selectItemAtIndex:i];
 	
 	client.lastSelectedChannel = isClient ? nil : (IRCChannel*)item;
 }
@@ -565,7 +583,15 @@
 	[fieldEditor setInsertionPointColor:theme.inputTextColor];
 	[text setTextColor:theme.inputTextColor];
 	[text setBackgroundColor:theme.inputTextBgColor];
-	[chatBox setInputTextFont:theme.inputTextFont];
+	
+	NSFont* inputFont = nil;
+	if ([Preferences themeOverrideInputFont]) {
+		inputFont = [NSFont fontWithName:[Preferences themeInputFontName] size:[Preferences themeInputFontSize]];
+	}
+	if (!inputFont) {
+		inputFont = theme.inputTextFont;
+	}
+	[chatBox setInputTextFont:inputFont];
 }
 
 - (void)changeTreeTheme
@@ -732,7 +758,7 @@
 	[self reloadTree];
 	
 	if (selected) {
-		[tree select:[tree rowForItem:sel]];
+		[tree selectItemAtIndex:[tree rowForItem:sel]];
 	}
 }
 
@@ -898,7 +924,7 @@
 	return [item numberOfChildren] > 0;
 }
 
-- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(id)item
+- (id)outlineView:(NSOutlineView *)outlineView child:(NSInteger)index ofItem:(IRCTreeItem*)item
 {
 	if (!item) return [clients objectAtIndex:index];
 	return [item childAtIndex:index];
@@ -924,6 +950,8 @@
 	
 	if (!selected) {
 		logBase.contentView = dummyLog.view;
+		[dummyLog notifyDidBecomeVisible];
+		
 		tree.menu = treeMenu;
 		memberList.dataSource = nil;
 		memberList.delegate = nil;
@@ -933,16 +961,18 @@
 	
 	[selected resetState];
 	
-	logBase.contentView = [[selected log] view];
+	LogController* log = [selected log];
+	logBase.contentView = [log view];
+	[log notifyDidBecomeVisible];
 	
 	if ([selected isClient]) {
-		tree.menu = [serverMenu submenu];
+		tree.menu = serverMenu;
 		memberList.dataSource = nil;
 		memberList.delegate = nil;
 		[memberList reloadData];
 	}
 	else {
-		tree.menu = [channelMenu submenu];
+		tree.menu = channelMenu;
 		memberList.dataSource = selected;
 		memberList.delegate = selected;
 		[memberList reloadData];
@@ -1123,6 +1153,11 @@
 		[ary addObjectsFromArray:high];
 		[self reloadTree];
 		[self save];
+	}
+	
+	int n = [tree rowForItem:selected];
+	if (n >= 0) {
+		[tree selectItemAtIndex:n];
 	}
 	
 	return YES;

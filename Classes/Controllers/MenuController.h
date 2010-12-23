@@ -1,3 +1,6 @@
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
+
 #import <Cocoa/Cocoa.h>
 #import "MainWindow.h"
 #import "InputTextField.h"
@@ -13,6 +16,7 @@
 
 @class AppController;
 @class IRCWorld;
+@class IRCClient;
 
 
 @interface MenuController : NSObject
@@ -59,6 +63,7 @@
 
 - (void)terminate;
 - (void)startPasteSheetWithContent:(NSString*)content nick:(NSString*)nick uid:(int)uid cid:(int)cid editMode:(BOOL)editMode;
+- (void)showServerPropertyDialog:(IRCClient*)client ignore:(BOOL)ignore;
 
 - (void)onPreferences:(id)sender;
 - (void)onAutoOp:(id)sender;

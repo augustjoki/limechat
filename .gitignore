@@ -6,12 +6,21 @@ build
 Packages
 .DS_Store
 .LSOverride
+<<<<<<< HEAD:.gitignore
 *.o
 *.ob
 *.tmproj
 *.build
+=======
+*.pbxuser
+*.mode1*
+>>>>>>> 97221377f52b42aa232d4937d1f538d3391cae35:.gitignore
 *~.nib
+*.tmproj
 *.tm_build_errors
+<<<<<<< HEAD:.gitignore
 
 # osx noise
 .DS_Store
+=======
+>>>>>>> 97221377f52b42aa232d4937d1f538d3391cae35:.gitignore

@@ -1,9 +1,9 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "WelcomeDialog.h"
 #import "ServerDialog.h"
-#import "Regex.h"
+#import "OnigRegexp.h"
 #import "NSStringHelper.h"
 
 
@@ -49,10 +49,10 @@
 		NSString* nick = NSUserName();
 		nick = [nick stringByReplacingOccurrencesOfString:@" " withString:@""];
 		
-		Regex* nickRegex = [[[Regex alloc] initWithString:@"^[a-zA-Z][-_a-zA-Z0-9]*$"] autorelease];
-		NSRange r = [nickRegex match:nick];
-		if (r.location != NSNotFound) {
-			nickText.stringValue = [nick substringWithRange:r];
+		OnigRegexp* nickRegex = [OnigRegexp compile:@"[a-zA-Z][-_a-zA-Z0-9]*"];
+		OnigResult* result = [nickRegex match:nick];
+		if (result) {
+			nickText.stringValue = [nick substringWithRange:result.bodyRange];
 		}
 	}
 	
@@ -106,7 +106,7 @@
 	[channels addObject:@""];
 	[channelTable reloadData];
 	int row = channels.count - 1;
-	[channelTable select:row];
+	[channelTable selectItemAtIndex:row];
 	[channelTable editColumn:0 row:row withEvent:nil select:YES];
 }
 
@@ -119,7 +119,7 @@
 		int count = channels.count;
 		if (count <= n) n = count - 1;
 		if (n >= 0) {
-			[channelTable select:n];
+			[channelTable selectItemAtIndex:n];
 		}
 		[self tableViewSelectionIsChanging:nil];
 	}
@@ -152,7 +152,7 @@
 		NSString* s = [[[[[note object] textStorage] string] copy] autorelease];
 		[channels replaceObjectAtIndex:n withObject:s];
 		[channelTable reloadData];
-		[channelTable select:n];
+		[channelTable selectItemAtIndex:n];
 		[self tableViewSelectionIsChanging:nil];
 	}
 }

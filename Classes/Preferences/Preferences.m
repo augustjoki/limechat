@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "Preferences.h"
 #import "NSLocaleHelper.h"
@@ -98,6 +98,13 @@
 	return [ud boolForKey:@"Preferences.General.stop_growl_on_active"];
 }
 
++ (BOOL)autoJoinOnInvited
+{
+	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+	return [ud boolForKey:@"Preferences.General.auto_join_on_invited"];
+}
+
+
 + (TabActionType)tabAction
 {
 	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
@@ -120,12 +127,6 @@
 {
 	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
 	return [ud objectForKey:@"Preferences.Keyword.dislike_words"];
-}
-
-+ (NSArray*)keywordIgnoreWords
-{
-	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
-	return [ud objectForKey:@"Preferences.Keyword.ignore_words"];
 }
 
 + (KeywordMatchType)keywordMatchingMethod
@@ -212,6 +213,30 @@
 	[ud setDouble:value forKey:@"Preferences.Theme.log_font_size"];
 }
 
++ (NSString*)themeInputFontName
+{
+	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+	return [ud objectForKey:@"Preferences.Theme.input_font_name"];
+}
+
++ (void)setThemeInputFontName:(NSString*)value
+{
+	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+	[ud setObject:value forKey:@"Preferences.Theme.input_font_name"];
+}
+
++ (double)themeInputFontSize
+{
+	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+	return [ud doubleForKey:@"Preferences.Theme.input_font_size"];
+}
+
++ (void)setThemeInputFontSize:(double)value
+{
+	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+	[ud setDouble:value forKey:@"Preferences.Theme.input_font_size"];
+}
+
 + (NSString*)themeNickFormat
 {
 	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
@@ -222,6 +247,12 @@
 {
 	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
 	return [ud boolForKey:@"Preferences.Theme.override_log_font"];
+}
+
++ (BOOL)themeOverrideInputFont
+{
+	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+	return [ud boolForKey:@"Preferences.Theme.override_input_font"];
 }
 
 + (BOOL)themeOverrideNickFormat
@@ -654,7 +685,6 @@
 
 static NSMutableArray* keywords;
 static NSMutableArray* excludeWords;
-static NSMutableArray* ignoreWords;
 
 + (void)loadKeywords
 {
@@ -690,21 +720,44 @@ static NSMutableArray* ignoreWords;
 	}
 }
 
-+ (void)loadIgnoreWords
++ (void)cleanUpWords:(NSString*)key
 {
-	if (ignoreWords) {
-		[ignoreWords removeAllObjects];
-	}
-	else {
-		ignoreWords = [NSMutableArray new];
+	//
+	// load
+	//
+	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
+	NSArray* src = [ud objectForKey:key];
+	
+	NSMutableArray* ary = [NSMutableArray array];
+	for (NSDictionary* e in src) {
+		NSString* s = [e objectForKey:@"string"];
+		if (s.length) {
+			[ary addObject:s];
+		}
 	}
 	
-	NSUserDefaults* ud = [NSUserDefaults standardUserDefaults];
-	NSArray* ary = [ud objectForKey:@"ignoreWords"];
-	for (NSDictionary* e in ary) {
-		NSString* s = [e objectForKey:@"string"];
-		if (s) [ignoreWords addObject:s];
+	//
+	// sort
+	//
+	[ary sortUsingSelector:@selector(caseInsensitiveCompare:)];
+	
+	//
+	// save
+	//
+	NSMutableArray* saveAry = [NSMutableArray array];
+	for (NSString* s in ary) {
+		NSMutableDictionary* dic = [NSMutableDictionary dictionary];
+		[dic setObject:s forKey:@"string"];
+		[saveAry addObject:dic];
 	}
+	[ud setObject:saveAry forKey:key];
+	[ud synchronize];
+}
+
++ (void)cleanUpWords
+{
+	[self cleanUpWords:@"keywords"];
+	[self cleanUpWords:@"excludeWords"];
 }
 
 + (NSArray*)keywords
@@ -715,11 +768,6 @@ static NSMutableArray* ignoreWords;
 + (NSArray*)excludeWords
 {
 	return excludeWords;
-}
-
-+ (NSArray*)ignoreWords
-{
-	return ignoreWords;
 }
 
 #pragma mark -
@@ -735,9 +783,6 @@ static NSMutableArray* ignoreWords;
 	}
 	else if ([key isEqualToString:@"excludeWords"]) {
 		[self loadExcludeWords];
-	}
-	else if ([key isEqualToString:@"ignoreWords"]) {
-		[self loadIgnoreWords];
 	}
 }
 
@@ -772,8 +817,11 @@ static NSMutableArray* ignoreWords;
 	[d setObject:@"resource:Limelight" forKey:@"Preferences.Theme.name"];
 	[d setObject:@"Lucida Grande" forKey:@"Preferences.Theme.log_font_name"];
 	[d setDouble:12 forKey:@"Preferences.Theme.log_font_size"];
+	[d setObject:@"Lucida Grande" forKey:@"Preferences.Theme.input_font_name"];
+	[d setDouble:12 forKey:@"Preferences.Theme.input_font_size"];
 	[d setObject:@"%n: " forKey:@"Preferences.Theme.nick_format"];
 	[d setBool:NO forKey:@"Preferences.Theme.override_log_font"];
+	[d setBool:NO forKey:@"Preferences.Theme.override_input_font"];
 	[d setBool:NO forKey:@"Preferences.Theme.override_nick_format"];
 	[d setBool:NO forKey:@"Preferences.Theme.override_timestamp_format"];
 	[d setObject:@"%H:%M" forKey:@"Preferences.Theme.timestamp_format"];
@@ -789,11 +837,9 @@ static NSMutableArray* ignoreWords;
 	[ud registerDefaults:d];
 	[ud addObserver:self forKeyPath:@"keywords" options:NSKeyValueObservingOptionNew context:NULL];
 	[ud addObserver:self forKeyPath:@"excludeWords" options:NSKeyValueObservingOptionNew context:NULL];
-	[ud addObserver:self forKeyPath:@"ignoreWords" options:NSKeyValueObservingOptionNew context:NULL];
 
 	[self loadKeywords];
 	[self loadExcludeWords];
-	[self loadIgnoreWords];
 }
 
 #pragma mark -
@@ -825,18 +871,6 @@ static NSMutableArray* ignoreWords;
 		
 		oldKey = @"Preferences.Keyword.dislike_words";
 		newKey = @"excludeWords";
-		ary = [ud objectForKey:oldKey];
-		if (ary) {
-			NSMutableArray* result = [NSMutableArray array];
-			for (NSString* s in ary) {
-				[result addObject:[NSMutableDictionary dictionaryWithObject:s forKey:@"string"]];
-			}
-			[ud setObject:result forKey:newKey];
-			[ud removeObjectForKey:oldKey];
-		}
-		
-		oldKey = @"Preferences.Keyword.ignore_words";
-		newKey = @"ignoreWords";
 		ary = [ud objectForKey:oldKey];
 		if (ary) {
 			NSMutableArray* result = [NSMutableArray array];

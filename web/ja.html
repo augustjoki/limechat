@@ -223,7 +223,7 @@ table#shortcutkeys td
 	<h3>Snow Leopard / Leopard</h3>
 	<div class="section">
 		<ol>
-			<li><a href="http://cloud.github.com/downloads/psychs/limechat/LimeChat_2.7.tbz">LimeChat_2.7.tbz</a> をダウンロードする。</li>
+			<li><a href="http://cloud.github.com/downloads/psychs/limechat/LimeChat_2.16.tbz">LimeChat_2.16.tbz</a> をダウンロードする。</li>
 			<li>ダウンロードした tbz パッケージをダブルクリックして解凍し、LimeChat.app をアプリケーションフォルダにコピーする。</li>
 		</ol>
 	</div>
@@ -256,7 +256,7 @@ table#shortcutkeys td
 <div class="section">
 	<ul>
 		<li><a href="http://limechat.net/">LimeChat for Windows</a></li>
-		<li><a href="http://limechat.net/iphone/ja.html">LimeChat for iPhone</a></li>
+		<li><a href="http://limechat.net/iphone/ja.html">LimeChat for iPhone and iPad</a></li>
 	</ul>
 </div>
 
@@ -336,6 +336,98 @@ table#shortcutkeys td
 		更新履歴は <a href="rss_ja.xml">RSS</a> でも配信しています。
 	</p>
 	<dl>
+		
+    <dt id="v2.16">2.16 (2010.12.05)</dt>
+		<dd>
+			<ul>
+        <li>入力部分のフォントをオーバーライドする設定を追加。</li>
+        <li>1つのメッセージに複数の画像リンクが入っているとき、すべてをプレビューするようにした。</li>
+        <li>plixi.com と puu.sh の画像プレビューに対応。</li>
+        <li>gist の変更に追随した。</li>
+        <li>サーバリストを更新した。</li>
+        <li>/omsg、/onotice がうまく送れなかったバグをなおした。</li>
+        <li>KOI8-R と KOI8-U をサポートした。</li>
+			</ul>
+		</dd>
+    
+    <dt id="v2.15">2.15 (2010.06.23)</dt>
+    <dd>
+  	  <ul>
+        <li>招待されたら自動でjoinするオプションを追加した。</li>
+        <li>ISO-2022-JP のシーケンスが途中で切れている場合に対応した。</li>
+        <li>メニューから切断すると、どんなときでも再接続しないようにした。</li>
+        <li>細かいバグをfixした。</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.14">2.14 (2010.05.19)</dt>
+    <dd>
+  	  <ul>
+        <li>imgur.com と twitvid のインライン画像表示をサポートした。</li>
+        <li>入力用のテキストボックスに、いつでもテキストをドラッグ&amp;ドロップで追記できるようにした。</li>
+        <li>サーバツリーの項目を移動したときに、選択位置を認識しなおすようにした。</li>
+        <li>Initial mode にスペースが含まれていた場合、うまく mode が設定されないバグをfixした。</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.13">2.13 (2010.05.11)</dt>
+    <dd>
+  	  <ul>
+    	  <li>補完できるコマンドを調整した。</li>
+        <li>再接続したときに、現在のニックネームを使うようにした。</li>
+        <li>ログイン名と名前が空のとき、代わりにニックネームを使うようにした。</li>
+        <li>ペーストダイアログを ESC で閉じると、次に開かなくなるバグをfixした。</li>
+        <li>日本語の文字を URL に含めないようにした。</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.12">2.12 (2010.05.07)</dt>
+    <dd>
+  	  <ul>
+        <li>64bit サポート。</li>
+    	  <li>無視機能を追加した。</li>
+        <li>YouTube とニコニコ動画の URL を認識するようにした。</li>
+      </ul>
+    </dd>
+	  
+    <dt id="v2.11">2.11 (2010.05.03)</dt>
+    <dd>
+  	  <ul>
+        <li>Fallback encoding が保存されていなかったバグをfixした。</li>
+        <li>細かいバグをfixした。</li>
+      </ul>
+    </dd>
+	  
+    <dt id="v2.10">2.10 (2010.04.28)</dt>
+    <dd>
+  	  <ul>
+    	  <li>NickServ への登録が終わるまで、自動JOINを遅らせるようにした。</li>
+        <li>ニックネームを変更したときに、必要なら NickServ に登録するようにした。</li>
+        <li>ISO-8859-11 (タイ語) をエンコーディングに追加した。</li>
+        <li>細かいバグをfixした。</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.9">2.9 (2010.04.26)</dt>
+    <dd>
+  	  <ul>
+    	  <li>パフォーマンスを改善した。</li>
+        <li>画像サービスのURLに対応した。 (twitpic, tweetphoto, yfrog, twitgoo, img.ly, movapic, f.hatena.ne.jp)</li>
+        <li>スクロール位置を一番下に保つ方法を変更した。コードを提供してくれた Allan に感謝。</li>
+        <li>テーマでカスタム Javascript を使えるようにした。</li>
+        <li>細かいバグをfixした。</li>
+      </ul>
+    </dd>
+    
+    <dt id="v2.8">2.8 (2010.04.23)</dt>
+    <dd>
+  	  <ul>
+        <li>安定性のため正規表現ライブラリを ICU regexp から Oniguruma に切り替えた。</li>
+        <li>大きなフォントを使っているとスクロールバーが一番下に固定できない問題に対処した。</li>
+        <li>サーバ設定で System SOCKS proxy を選択していても、システム設定でオフにしている場合は、SOCKS を使わずに直接サーバに接続するようにした。</li>
+        <li>細かいバグをfixした。</li>
+      </ul>
+    </dd>
     
     <dt id="v2.7">2.7 (2010.04.20)</dt>
     <dd>
@@ -409,43 +501,6 @@ table#shortcutkeys td
   	  <ul>
         <li>Objective-C ですべて書き直した。RubyCocoa の GC のバグを回避するため。</li>
         <li>自動オペレータ機能はいったん無効化し、今後のリリースで実装予定。</li>
-      </ul>
-    </dd>
-		
-    <dt id="v1.7">1.7 (2010.03.25)</dt>
-    <dd>
-	    <ul>
-          <li>インラインで画像を貼り付けるオプションを改善した。</li>
-          <li>Go To Mark メニューを追加した。</li>
-          <li>Sparkle が動作していなかったのを修正した。</li>
-          <li>送信したコマンドをログに表示しないようにした。</li>
-          <li>Cmd+[ / Cmd+] のショートカットキーが日本語キーボードでも動作するようにした。</li>
-        </ul>
-    </dd>
-	  
-    <dt id="v1.6">1.6 (2010.03.24)</dt>
-    <dd>
-      <ul>
-        <li>ブラウザをバックグランドで開くオプションを追加した。</li>
-        <li>インラインで画像を表示するオプションを追加した。</li>
-        <li>Cmd+[ / Cmd+] でチャンネルを移動するようにした。</li>
-        <li>itms: スキーマを URL として扱うようにした。</li>
-    	</ul>
-    </dd>
-
-    <dt id="v1.5">1.5 (2010.02.03)</dt>
-    <dd>
-      <ul>
-        <li>オペレータがいなくなったときに、自動で rejoin するオプションを追加した。</li>
-      </ul>
-    </dd>
-
-    <dt id="v1.4">1.4 (2010.01.17)</dt>
-    <dd>
-      <ul>
-        <li>エンコーディング設定に EUC-KR を追加した</li>
-        <li>Wide のサーバを irc.ircnet.ne.jp に読み替えるようにした</li>
-        <li>細かいバグを修正した</li>
       </ul>
     </dd>
     

@@ -1,8 +1,7 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "LogRenderer.h"
-#import "Regex.h"
 #import "NSStringHelper.h"
 #import "GTMNSString+HTML.h"
 #import "UnicodeHelper.h"
@@ -134,6 +133,7 @@ static NSString* renderRange(NSString* body, attr_t attr, int start, int len)
 	 highlightWholeLine:(BOOL)highlightWholeLine
 		 exactWordMatch:(BOOL)exactWordMatch
 			highlighted:(BOOL*)highlighted
+			  URLRanges:(NSArray**)urlRanges
 {
 	int len = body.length;
 	attr_t attrBuf[len];
@@ -259,7 +259,9 @@ static NSString* renderRange(NSString* body, attr_t attr, int start, int len)
 	//
 	// URL
 	//
+	NSMutableArray* urlAry = [NSMutableArray array];
 	start = 0;
+	
 	while (start < len) {
 		NSRange r = [body rangeOfUrlStart:start];
 		if (r.location == NSNotFound) {
@@ -267,7 +269,12 @@ static NSString* renderRange(NSString* body, attr_t attr, int start, int len)
 		}
 		
 		setFlag(attrBuf, URL_ATTR, r.location, r.length);
+		[urlAry addObject:[NSValue valueWithRange:r]];
 		start = NSMaxRange(r) + 1;
+	}
+	
+	if (urlAry.count) {
+		*urlRanges = urlAry;
 	}
 	
 	//

@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "PreferencesController.h"
 #import "Preferences.h"
@@ -37,6 +37,7 @@
 	[sounds release];
 	[transcriptFolderOpenPanel release];
 	[logFont release];
+	[inputFont release];
 	[super dealloc];
 }
 
@@ -51,6 +52,9 @@
 	
 	[logFont release];
 	logFont = [[NSFont fontWithName:[Preferences themeLogFontName] size:[Preferences themeLogFontSize]] retain];
+	
+	[inputFont release];
+	inputFont = [[NSFont fontWithName:[Preferences themeInputFontName] size:[Preferences themeInputFontSize]] retain];
 	
 	if (![self.window isVisible]) {
 		[self.window center];
@@ -80,6 +84,26 @@
 - (CGFloat)fontPointSize
 {
 	return [Preferences themeLogFontSize];
+}
+
+- (void)setInputFontDisplayName:(NSString*)value
+{
+	[Preferences setThemeInputFontName:value];
+}
+
+- (NSString*)inputFontDisplayName
+{
+	return [Preferences themeInputFontName];
+}
+
+- (void)setInputFontPointSize:(CGFloat)value
+{
+	[Preferences setThemeInputFontSize:value];
+}
+
+- (CGFloat)inputFontPointSize
+{
+	return [Preferences themeInputFontSize];
 }
 
 - (int)dccFirstPort
@@ -388,18 +412,36 @@
 
 - (void)onSelectFont:(id)sender
 {
+	changingLogFont = YES;
+	
 	NSFontManager* fm = [NSFontManager sharedFontManager];
 	[fm setSelectedFont:logFont isMultiple:NO];
 	[fm orderFrontFontPanel:self];
 }
 
+- (void)onInputSelectFont:(id)sender
+{
+	changingLogFont = NO;
+	
+	NSFontManager* fm = [NSFontManager sharedFontManager];
+	[fm setSelectedFont:inputFont isMultiple:NO];
+	[fm orderFrontFontPanel:self];
+}
+
 - (void)changeFont:(id)sender
 {
-	[logFont autorelease];
-	logFont = [[sender convertFont:logFont] retain];
-	
-	[self setValue:logFont.fontName forKey:@"fontDisplayName"];
-	[self setValue:[NSNumber numberWithDouble:logFont.pointSize] forKey:@"fontPointSize"];
+	if (changingLogFont) {
+		[logFont autorelease];
+		logFont = [[sender convertFont:logFont] retain];
+		[self setValue:logFont.fontName forKey:@"fontDisplayName"];
+		[self setValue:[NSNumber numberWithDouble:logFont.pointSize] forKey:@"fontPointSize"];
+	}
+	else {
+		[inputFont autorelease];
+		inputFont = [[sender convertFont:inputFont] retain];
+		[self setValue:inputFont.fontName forKey:@"inputFontDisplayName"];
+		[self setValue:[NSNumber numberWithDouble:inputFont.pointSize] forKey:@"inputFontPointSize"];
+	}
 	
 	[self onLayoutChanged:nil];
 }
@@ -436,12 +478,6 @@
 	[self performSelector:@selector(editTable:) withObject:excludeWordsTable afterDelay:0];
 }
 
-- (void)onAddIgnoreWord:(id)sender
-{
-	[ignoreWordsArrayController add:nil];
-	[self performSelector:@selector(editTable:) withObject:ignoreWordsTable afterDelay:0];
-}
-
 - (void)onLayoutChanged:(id)sender
 {
 	NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
@@ -453,6 +489,7 @@
 
 - (void)windowWillClose:(NSNotification *)note
 {
+	[Preferences cleanUpWords];
 	[[NSUserDefaults standardUserDefaults] synchronize];
 	
 	if ([delegate respondsToSelector:@selector(preferencesDialogWillClose:)]) {

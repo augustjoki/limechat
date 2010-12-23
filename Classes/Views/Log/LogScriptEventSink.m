@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "LogScriptEventSink.h"
 #import "GTMNSString+HTML.h"
@@ -8,6 +8,10 @@
 
 
 #define DOUBLE_CLICK_RADIUS	3
+
+@interface NSEvent (SnowLeopardCompatibility)
++ (NSTimeInterval)doubleClickInterval;
+@end
 
 
 @implementation LogScriptEventSink
@@ -76,10 +80,20 @@
 	
 	BOOL res = NO;
 	
-	CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
+	CFAbsoluteTime doubleClickThreshold = 0;
+	if ([NSEvent respondsToSelector:@selector(doubleClickInterval)]) {
+		doubleClickThreshold = [NSEvent doubleClickInterval];
+	}
+	else {
+		doubleClickThreshold = GetDblTime() / 60.0;
+	}
+	if (doubleClickThreshold == 0) {
+		doubleClickThreshold = 0.5;
+	}
 	
+	CFAbsoluteTime now = CFAbsoluteTimeGetCurrent();
 	if (x-d <= cx && cx <= x+d && y-d <= cy && cy <= y+d) {
-		if (now < lastClickTime + GetDblTime() / 60.0) {
+		if (now < lastClickTime + doubleClickThreshold) {
 			res = YES;
 		}
 	}

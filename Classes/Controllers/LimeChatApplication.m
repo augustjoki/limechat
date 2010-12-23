@@ -1,5 +1,5 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
 #import "LimeChatApplication.h"
 
@@ -25,8 +25,9 @@
 {
 	if ([e type] == 14 && [e subtype] == 6) {
 		if (hotkey && [hotkey enabled]) {
-			if ([[self delegate] respondsToSelector:@selector(applicationDidReceiveHotKey:)]) {
-				[[self delegate] applicationDidReceiveHotKey:self];
+			id delegate = [self delegate];
+			if ([delegate respondsToSelector:@selector(applicationDidReceiveHotKey:)]) {
+				[delegate applicationDidReceiveHotKey:self];
 			}
 		}
 	}

@@ -1,26 +1,35 @@
-// Created by Satoshi Nakagawa.
-// You can redistribute it and/or modify it under the Ruby's license or the GPL2.
+// LimeChat is copyrighted free software by Satoshi Nakagawa <psychs AT limechat DOT net>.
+// You can redistribute it and/or modify it under the terms of the GPL version 2 (see the file GPL.txt).
 
+#define ADMIN		@"ADMIN"
 #define AWAY		@"AWAY"
 #define ERROR		@"ERROR"
 #define INVITE		@"INVITE"
+#define INFO		@"INFO"
 #define ISON		@"ISON"
 #define JOIN		@"JOIN"
 #define KICK		@"KICK"
 #define KILL		@"KILL"
+#define LINKS		@"LINKS"
 #define LIST		@"LIST"
+#define LUSERS		@"LUSERS"
 #define MODE		@"MODE"
+#define MOTD		@"MOTD"
 #define NAMES		@"NAMES"
 #define NICK		@"NICK"
 #define NOTICE		@"NOTICE"
+#define OPER		@"OPER"
 #define PART		@"PART"
 #define PASS		@"PASS"
 #define PING		@"PING"
 #define PONG		@"PONG"
 #define PRIVMSG		@"PRIVMSG"
 #define QUIT		@"QUIT"
+#define STATS		@"STATS"
 #define TOPIC		@"TOPIC"
+#define TRACE		@"TRACE"
 #define USER		@"USER"
+#define VERSION		@"VERSION"
 #define WHO			@"WHO"
 #define WHOIS		@"WHOIS"
 #define WHOWAS		@"WHOWAS"
@@ -34,7 +43,6 @@
 #define CTCPREPLY	@"CTCPREPLY"
 #define TIME		@"TIME"
 #define USERINFO	@"USERINFO"
-#define VERSION		@"VERSION"
 
 #define OMSG		@"OMSG"
 #define ONOTICE		@"ONOTICE"
@@ -48,6 +56,7 @@
 #define DEVOICE		@"DEVOICE"
 #define HALFOP		@"HALFOP"
 #define HOP			@"HOP"
+#define IGNORE		@"IGNORE"
 #define J			@"J"
 #define LEAVE		@"LEAVE"
 #define M			@"M"
@@ -62,8 +71,8 @@
 #define TIMER		@"TIMER"
 #define VOICE		@"VOICE"
 #define UNBAN		@"UNBAN"
+#define UNIGNORE	@"UNIGNORE"
 #define UMODE		@"UMODE"
-#define VERSION		@"VERSION"
 #define WEIGHTS		@"WEIGHTS"
 	
 #define IRC_PENALTY_NORMAL	2
