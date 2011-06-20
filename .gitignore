@@ -4,6 +4,7 @@
 *.perspectivev3
 build
 Packages
+xcuserdata
 .DS_Store
 .LSOverride
 <<<<<<< HEAD:.gitignore

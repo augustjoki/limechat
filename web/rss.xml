@@ -7,18 +7,15 @@
     <language>en-us</language>
 
     <item>
-      <title>2.16</title>
-      <link>http://limechat.net/mac/#v2.16</link>
-      <pubDate>Sun, 05 Dec 2010 20:08:28 -0800</pubDate>
+      <title>2.24</title>
+      <link>http://limechat.net/mac/#v2.24</link>
+      <pubDate>Mon, 05 Jun 2011 22:13:00 -0700</pubDate>
       <content:encoded><![CDATA[
   			<ul>
-          <li>Added override input text font option.</li>
-          <li>Show all thumbnails for multiple image links in a message.</li>
-          <li>Supported inline images on plixi.com and puu.sh.</li>
-          <li>Follow the changes of gist.</li>
-          <li>Updated server list.</li>
-          <li>Fixed a bug in /omsg and /onotice commands.</li>
-          <li>KOI8-R and KOI8-U support.</li>
+          <li>Fixed a bug in parsing mode.</li>
+          <li>Updated Limelight theme.</li>
+          <li>Use chat01.ustream.tv instead of chat1.ustream.tv.</li>
+          <li>Changed caption for Nickserv password.</li>
         </ul>
       ]]></content:encoded>
     </item>

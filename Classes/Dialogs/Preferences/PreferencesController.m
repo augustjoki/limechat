@@ -11,6 +11,7 @@
 #define LINES_MIN			100
 #define PORT_MIN			1024
 #define PORT_MAX			65535
+#define PONG_INTERVAL_MIN	20
 
 
 @interface PreferencesController (Private)
@@ -26,7 +27,8 @@
 
 - (id)init
 {
-	if (self = [super init]) {
+	self = [super init];
+	if (self) {
 		[NSBundle loadNibNamed:@"Preferences" owner:self];
 	}
 	return self;
@@ -136,6 +138,16 @@
 	[Preferences setMaxLogLines:value];
 }
 
+- (int)pongInterval
+{
+	return [Preferences pongInterval];
+}
+
+- (void)setPongInterval:(int)value
+{
+	[Preferences setPongInterval:value];
+}
+
 - (BOOL)validateValue:(id *)value forKey:(NSString *)key error:(NSError **)error
 {
 	if ([key isEqualToString:@"maxLogLines"]) {
@@ -160,6 +172,12 @@
 		}
 		else if (PORT_MAX < n) {
 			*value = [NSNumber numberWithInt:PORT_MAX];
+		}
+	}
+	else if ([key isEqualToString:@"pongInterval"]) {
+		int n = [*value intValue];
+		if (n < PONG_INTERVAL_MIN) {
+			*value = [NSNumber numberWithInt:PONG_INTERVAL_MIN];
 		}
 	}
 	return YES;
@@ -469,13 +487,13 @@
 - (void)onAddKeyword:(id)sender
 {
 	[keywordsArrayController add:nil];
-	[self performSelector:@selector(editTable:) withObject:keywordsTable afterDelay:0];
+	[self performSelector:@selector(editTable:) withObject:keywordsTable afterDelay:0.01];
 }
 
 - (void)onAddExcludeWord:(id)sender
 {
 	[excludeWordsArrayController add:nil];
-	[self performSelector:@selector(editTable:) withObject:excludeWordsTable afterDelay:0];
+	[self performSelector:@selector(editTable:) withObject:excludeWordsTable afterDelay:0.01];
 }
 
 - (void)onLayoutChanged:(id)sender
@@ -489,6 +507,8 @@
 
 - (void)windowWillClose:(NSNotification *)note
 {
+	[self.window endEditingFor:nil];
+	
 	[Preferences cleanUpWords];
 	[[NSUserDefaults standardUserDefaults] synchronize];
 	
