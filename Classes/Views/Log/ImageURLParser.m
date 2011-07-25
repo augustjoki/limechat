@@ -41,7 +41,12 @@
 		}
 	}
 	else if ([host hasSuffix:@"plixi.com"]) {
-		if (path.length > 1) {
+		if ([path hasPrefix:@"/p/"]) {
+			return [NSString stringWithFormat:@"http://api.plixi.com/api/TPAPI.svc/imagefromurl?size=thumbnail&url=%@", [url encodeURIComponent]];
+		}
+	}
+	else if ([host hasSuffix:@"lockerz.com"]) {
+		if ([path hasPrefix:@"/s/"]) {
 			return [NSString stringWithFormat:@"http://api.plixi.com/api/TPAPI.svc/imagefromurl?size=thumbnail&url=%@", [url encodeURIComponent]];
 		}
 	}
@@ -81,8 +86,16 @@
 		}
 	}
 	else if ([host hasSuffix:@"flic.kr"]) {
-		NSString* shortId = [path substringFromIndex:2];
-		return [NSString stringWithFormat:@"http://flic.kr/p/img/%@_m.jpg", shortId];
+		if (path.length > 3) {
+			NSString* shortId = [path substringFromIndex:3];
+			return [NSString stringWithFormat:@"http://flic.kr/p/img/%@_m.jpg", shortId];
+		}
+	}
+	else if ([host hasSuffix:@"instagr.am"]) {
+		if (path.length > 3) {
+			NSString* shortId = [path substringFromIndex:3];
+			return [NSString stringWithFormat:@"http://instagr.am/p/%@/media/?size=t", shortId];
+		}
 	}
 	else if ([host hasSuffix:@"movapic.com"]) {
 		if ([path hasPrefix:@"/pic/"]) {
