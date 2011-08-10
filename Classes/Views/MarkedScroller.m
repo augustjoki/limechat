@@ -8,11 +8,15 @@
 
 @synthesize dataSource;
 
+const static int INSET = 3;
 
-- (void)drawRect:(NSRect)dirtyRect
++ (BOOL)isCompatibleWithOverlayScrollers
 {
-	[super drawRect:dirtyRect];
-	
+	return self == [MarkedScroller class];
+}
+
+- (void)drawContentInMarkedScroller
+{
 	if (!dataSource) return;
 	if (![dataSource respondsToSelector:@selector(markedScrollerPositions:)]) return;
 	if (![dataSource respondsToSelector:@selector(markedScrollerColor:)]) return;
@@ -26,9 +30,10 @@
 	// prepare transform
 	//
 	NSAffineTransform* transform = [NSAffineTransform transform];
-	int width = [MarkedScroller scrollerWidth];
+	int width = [self rectForPart:NSScrollerKnobSlot].size.width - INSET * 2;
 	CGFloat scale = [self rectForPart:NSScrollerKnobSlot].size.height / (CGFloat)contentHeight;
 	int offset = [self rectForPart:NSScrollerKnobSlot].origin.y;
+	int indent = [self rectForPart:NSScrollerKnobSlot].origin.x + INSET;
 	[transform scaleXBy:1 yBy:scale];
 	[transform translateXBy:0 yBy:offset];
 	
@@ -40,7 +45,7 @@
 	
 	for (NSNumber* e in ary) {
 		int i = [e intValue];
-		NSPoint pt = NSMakePoint(0, i);
+		NSPoint pt = NSMakePoint(indent, i);
 		pt = [transform transformPoint:pt];
 		pt.x = ceil(pt.x);
 		pt.y = ceil(pt.y) + 0.5;
@@ -56,15 +61,18 @@
 	//
 	// draw lines
 	//
-	NSRectClip(NSInsetRect([self rectForPart:NSScrollerKnobSlot], 3, 4));
 	NSColor* color = [dataSource markedScrollerColor:self];
 	[color set];
 	
 	for (NSBezierPath* e in lines) {
 		[e stroke];
 	}
-	
-	[self drawKnob];
+}
+
+- (void)drawKnob
+{
+	[self drawContentInMarkedScroller];
+	[super drawKnob];
 }
 
 @end
